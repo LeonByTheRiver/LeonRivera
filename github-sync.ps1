@@ -44,13 +44,11 @@ $Timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 $CommitMsg = "Update: Site content ($Timestamp)"
 
 Write-Host "Committing changes..." -ForegroundColor Gray
-# We use --allow-empty in case there are no changes to avoid errors
 git commit -m $CommitMsg --allow-empty
 
-# 6. Push to GitHub
+# 6. Push to GitHub (Using --force to overwrite initial GitHub files)
 Write-Host "Pushing to GitHub (main branch)..." -ForegroundColor Green
-# The -u flag ensures 'main' is tracked
-git push -u origin main
+git push -u origin main --force
 
 Write-Host "-------------------------------" -ForegroundColor Cyan
 Write-Host "Sync Complete!" -ForegroundColor Green
