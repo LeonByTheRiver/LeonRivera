@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Leon Rivera — Official Website. Born Again. Sound. Vision. Resurrection.">
+  <meta name="theme-color" content="#03030a">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Leon Rivera — Born Again">
+  <meta property="og:description" content="Sound. Vision. Resurrection.">
+  <meta property="og:type" content="website">
+
+  <title>Leon Rivera — Born Again</title>
+
+  <!-- Preconnect for Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+  <!-- ── Atmosphere layers ─────────────────────────────── -->
+  <canvas id="particle-canvas" aria-hidden="true"></canvas>
+  <div class="grain-overlay" aria-hidden="true"></div>
+
+  <!-- ── Custom cursor ─────────────────────────────────── -->
+  <div id="cursor-dot" aria-hidden="true"></div>
+  <div id="cursor-ring" aria-hidden="true"></div>
+
+  <!-- ── YouTube embed modal ───────────────────────────── -->
+  <div class="yt-modal-backdrop" id="yt-modal" role="dialog" aria-modal="true" aria-label="Video player">
+    <div class="yt-modal-inner">
+      <button class="yt-modal-close" id="yt-close" aria-label="Close video">✕</button>
+      <iframe id="yt-iframe" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════
+       NAVIGATION
+  ═════════════════════════════════════════════════════ -->
+  <nav id="main-nav" role="navigation" aria-label="Main navigation">
+    <a href="#hero" class="nav-logo">
+      Leon <span>Rivera</span>
+    </a>
+
+    <!-- Desktop links -->
+    <ul class="nav-links" role="list">
+      <li><a href="#about">About</a></li>
+      <li><a href="#albums">Albums</a></li>
+      <li><a href="#videos">Videos</a></li>
+      <li><a href="#social" class="nav-cta">Follow</a></li>
+    </ul>
+
+    <!-- Mobile hamburger -->
+    <button class="nav-hamburger" id="nav-hamburger" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- Mobile drawer -->
+  <div class="nav-mobile-drawer" id="nav-mobile-drawer" role="dialog" aria-modal="true" aria-label="Mobile menu">
+    <a href="#about">About</a>
+    <a href="#albums">Albums</a>
+
+    <a href="#videos">Videos</a>
+    <a href="#social">Follow</a>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════
+       ❶ HERO
+  ═════════════════════════════════════════════════════ -->
+  <section id="hero" aria-label="Hero">
+    <div class="hero-bg-lines" aria-hidden="true"></div>
+    <div class="hero-glow hero-glow-1" aria-hidden="true"></div>
+    <div class="hero-glow hero-glow-2" aria-hidden="true"></div>
+
+    <p class="hero-eyebrow">Official Site</p>
+
+    <h1 class="hero-name">
+      Leon
+      <span class="name-accent">Rivera</span>
+    </h1>
+
+    <p class="hero-tagline">Sound &nbsp;·&nbsp; Vision &nbsp;·&nbsp; Resurrection</p>
+
+    <!-- Album badge — populated by site-builder.js -->
+    <a href="#albums" class="hero-album-badge" id="hero-album-badge" aria-label="Featured album">
+      <div id="hero-badge-cover"></div>
+      <div class="badge-info">
+        <div class="badge-label">New Album</div>
+        <div class="badge-title" id="hero-badge-title">Born Again</div>
+      </div>
+    </a>
+
+    <!-- Scroll cue -->
+    <div class="hero-scroll-indicator" aria-hidden="true">
+      <div class="scroll-line"></div>
+      <span class="scroll-label">Scroll</span>
+    </div>
+  </section>
+
+  <div class="section-transition" aria-hidden="true"></div>
+
+  <!-- ════════════════════════════════════════════════════
+       ❷ ABOUT
+  ═════════════════════════════════════════════════════ -->
+  <section id="about" aria-label="About Leon Rivera">
+    <div class="section-inner">
+      <div class="about-grid">
+
+        <!-- Visual / portrait placeholder -->
+        <div class="about-visual reveal">
+          <div class="about-portrait-frame">
+            <div class="about-portrait-bg">
+              <div class="portrait-art" aria-hidden="true">
+                <span class="portrait-initial">LR</span>
+              </div>
+            </div>
+            <div class="about-frame-accent" aria-hidden="true"></div>
+          </div>
+        </div>
+
+        <!-- Text -->
+        <div class="about-text">
+          <p class="section-label reveal">The Artist</p>
+          <h2 class="section-title reveal reveal-delay-1">
+            Its never too late<br><em>to try again</em>
+          </h2>
+          <div class="section-divider reveal reveal-delay-2" aria-hidden="true"></div>
+
+          <!-- Bio populated by site-builder.js -->
+          <div class="about-bio reveal reveal-delay-2" id="about-bio"></div>
+
+          <div class="about-stats reveal reveal-delay-3" aria-label="Stats">
+            <div class="stat-item">
+              <span class="stat-number">0/20</span>
+              <span class="stat-label">Albums</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <div class="section-transition" aria-hidden="true"></div>
+
+  <!-- ════════════════════════════════════════════════════
+       ❸ ALBUMS
+  ═════════════════════════════════════════════════════ -->
+  <section id="albums" aria-label="Discography">
+    <div class="section-inner">
+      <p class="section-label reveal">Discography</p>
+      <h2 class="section-title reveal reveal-delay-1">The <em>Works</em></h2>
+      <div class="section-divider reveal reveal-delay-2" aria-hidden="true"></div>
+
+      <!-- Album cards — populated by site-builder.js -->
+      <div class="albums-grid" id="albums-grid" role="list" aria-label="Albums"></div>
+    </div>
+  </section>
+
+
+
+  <!-- ════════════════════════════════════════════════════
+       ❺ VIDEOS
+  ═════════════════════════════════════════════════════ -->
+  <section id="videos" aria-label="Videos">
+    <div class="section-inner">
+      <p class="section-label reveal">Visuals</p>
+      <h2 class="section-title reveal reveal-delay-1">Music & <em>Films</em></h2>
+      <div class="section-divider reveal reveal-delay-2" aria-hidden="true"></div>
+
+
+
+      <!-- Video grid — populated by site-builder.js -->
+      <div class="videos-grid" id="videos-grid" role="list" aria-label="Video gallery"></div>
+    </div>
+  </section>
+
+
+
+
+
+  <!-- ════════════════════════════════════════════════════
+       ❽ SOCIAL
+  ═════════════════════════════════════════════════════ -->
+  <section id="social" aria-label="Follow Leon Rivera">
+    <div class="section-inner">
+      <div class="social-inner">
+        <div class="social-text">
+          <p class="section-label reveal">Connect</p>
+          <h2 class="reveal reveal-delay-1">
+            Follow the<br>
+            <span style="font-family:var(--font-display);font-style:italic;color:var(--neon-cyan)">journey</span>
+          </h2>
+        </div>
+        <!-- Social links — populated by site-builder.js -->
+        <div class="social-links reveal reveal-delay-2" id="social-links" role="list" aria-label="Social media links">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════════
+       ❾ FOOTER
+  ═════════════════════════════════════════════════════ -->
+  <footer role="contentinfo">
+    <div class="section-inner">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <span class="nav-logo">Leon <span>Rivera</span></span>
+          <p>Sound. Vision. Resurrection.<br>All compositions &amp; arrangements by Leon Rivera.</p>
+        </div>
+
+        <div class="footer-contact">
+          <span class="footer-contact-label">Contact</span>
+          <a href="mailto:contact@leonrivera.com" id="footer-email">contact@leonrivera.com</a>
+        </div>
+
+        <nav class="nav-links" aria-label="Footer navigation">
+          <a href="#about">About</a>
+          <a href="#albums">Albums</a>
+          <a href="#videos">Videos</a>
+        </nav>
+      </div>
+
+      <div class="footer-bottom">
+        <p class="footer-copy" id="footer-copy">© <span id="footer-year"></span> Leon Rivera. All rights reserved.</p>
+        <p class="footer-copy">Built for an artist. Designed for a feeling.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ══════════════════════════════════════════════════
+       SCRIPTS — order matters:
+       1. Data  →  2. Builder  →  3. Main interactions
+  ═══════════════════════════════════════════════════ -->
+  <script src="js/albums-data.js"></script>
+  <script src="js/site-builder.js"></script>
+  <script src="js/main.js"></script>
+
+  <script>
+    // Set copyright year dynamically
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+  </script>
+</body>
+
+</html>
