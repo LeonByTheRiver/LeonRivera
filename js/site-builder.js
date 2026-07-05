@@ -53,6 +53,12 @@ function buildAbout() {
   const bioContainer = document.getElementById('about-bio');
   if (!bioContainer) return;
   bioContainer.innerHTML = ARTIST.bio.map(p => `<p>${esc(p)}</p>`).join('');
+
+  // Handle portrait photo
+  const portraitArt = document.querySelector('.portrait-art');
+  if (portraitArt && ARTIST.photo) {
+    portraitArt.innerHTML = `<img src="${esc(ARTIST.photo)}" alt="${esc(ARTIST.name)}" class="about-portrait-img">`;
+  }
 }
 
 /* ══════════════════════════════════════════════════════════

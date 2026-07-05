@@ -62,26 +62,8 @@ const ALBUMS = [
     videos: [
       {
         type:      "youtube",
-        id:        "dQw4w9WgXcQ",   // Replace with real YouTube video ID
-        title:     "Neon Baptism — Official Music Video",
-        category:  "music-video",
-      },
-      {
-        type:      "youtube",
-        id:        "dQw4w9WgXcQ",   // Replace with real YouTube video ID
-        title:     "The Owl Speaks — Official Lyric Video",
-        category:  "lyric-video",
-      },
-      {
-        type:      "youtube",
-        id:        "dQw4w9WgXcQ",   // Replace with real YouTube video ID
-        title:     "Ocean Memoria — Visualizer",
-        category:  "visualizer",
-      },
-      {
-        type:      "youtube",
-        id:        "dQw4w9WgXcQ",
-        title:     "Violent Love — Official Music Video",
+        id:        "UtK0NqFMPUE",
+        title:     "Leon Rivera — Latest Visual",
         category:  "music-video",
       },
     ],
@@ -142,17 +124,16 @@ const ALBUMS = [
 // ── Artist bio data ──────────────────────────────────────────
 const ARTIST = {
   name: "Leon Rivera",
-  tagline: "Sound. Vision. Resurrection.",
+  tagline: "One of the most interesting person you will ever meet.",
   bio: [
-    "Leon Rivera doesn't make music — he assembles evidence. Each album is a crime scene investigation into the human condition: the motive of desire, the weapon of time, the victim always being whoever you were before you listened.",
-    "Raised between coastal silences and city static, Rivera trained his ear on the space between frequencies — the frequencies that carry grief, ecstasy, and the quiet violence of becoming. His sound defies genre because existence defies genre.",
-    "Born Again is the third chapter of an ongoing cycle. It will not be the last.",
+    "Hi, I'm Leon. I got a chance to live my life exactly as I wanted, and I'm doing just that. So, enjoy."
   ],
+  photo: "assets/images/artist-photo.jpg",
   social: {
     instagram: "https://www.instagram.com/leon.by.the.river/",
-    facebook:  "https://www.facebook.com/profile.php?id=61590314556473",
+    facebook:  "https://www.facebook.com/profile.php?id=61590314556473&sk=reels_tab",
     twitter:   "https://x.com/LeonbyaRiver",
     tiktok:    "https://www.tiktok.com/@leon.rivera644",
   },
-  contact: "contact@leonrivera.com",
+  contact: "mr.leon.by.the.river@gmail.com",
 };
