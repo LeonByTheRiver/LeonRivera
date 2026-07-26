@@ -516,6 +516,8 @@ section {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  position: relative;
+  z-index: 2;
   transition: transform 1.2s var(--transition-smooth);
 }
 .about-portrait-frame:hover .about-portrait-img {

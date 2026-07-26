@@ -53,10 +53,10 @@ const ALBUMS = [
     ],
 
     streaming: {
-      spotify:  "https://open.spotify.com",
-      apple:    "https://music.apple.com",
-      youtube:  "https://youtube.com",
-      tidal:    "https://tidal.com",
+      spotify:  "https://open.spotify.com/artist/3KCNJOV8owot6bcBVDiJhW",
+      apple:    "https://music.apple.com/us/artist/leon-rivera/6792706068",
+      deezer:   "https://www.deezer.com/fr/artist/405775832",
+      youtube:  "https://www.youtube.com/@LeonRivera-789",
     },
 
     videos: [
@@ -128,12 +128,16 @@ const ARTIST = {
   bio: [
     "Hi, I'm Leon. I got a chance to live my life exactly as I wanted, and I'm doing just that. So, enjoy."
   ],
-  photo: "assets/images/artist-photo.jpg",
+  photo: "assets/images/Offical Pfp.png",
   social: {
+    spotify:   "https://open.spotify.com/artist/3KCNJOV8owot6bcBVDiJhW",
+    apple:     "https://music.apple.com/us/artist/leon-rivera/6792706068",
+    deezer:    "https://www.deezer.com/fr/artist/405775832",
     instagram: "https://www.instagram.com/leon.by.the.river/",
-    facebook:  "https://www.facebook.com/profile.php?id=61590314556473&sk=reels_tab",
+    facebook:  "https://www.facebook.com/profile.php?id=61590314556473",
     twitter:   "https://x.com/LeonbyaRiver",
     tiktok:    "https://www.tiktok.com/@leon.rivera644",
+    youtube:   "https://www.youtube.com/@LeonRivera-789",
   },
   contact: "mr.leon.by.the.river@gmail.com",
 };
