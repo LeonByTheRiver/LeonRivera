@@ -235,7 +235,6 @@ document.addEventListener('DOMContentLoaded', () => {
   buildHero();
   buildAbout();
   buildAlbums();
-  buildVideos();
   buildSocial();
 
   // After building, re-run scroll observer on new elements
