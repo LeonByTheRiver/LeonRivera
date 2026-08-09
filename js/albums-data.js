@@ -16,7 +16,7 @@
  *  description → short paragraph shown on the album card
  *  color       → dominant accent color for this album (hex or css)
  *  featured    → true = show this album in the hero spotlight
- *  tracks      → array of {number, title, duration, lyrics (optional URL)}
+ *  tracks      → array of {number, title, lyrics (optional URL)}
  *  streaming   → links to platforms {spotify, apple, youtube, tidal}
  *  videos      → array of {type:"youtube"|"local", id/src, title, thumbnail}
  *  lore        → array of {symbol, meaning} shown in the Lore section
@@ -27,11 +27,11 @@ const ALBUMS = [
   {
     id: "born-again",
     title: "Born Again",
-    year: "2024",
+    year: "2026",
     cover: "assets/images/born-again-cover.png",  // Replace with your image
     coverFallbackGradient: "linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 40%, #0d1b2a 100%)",
     description:
-      "A cinematic odyssey through rebirth and ruin. Twelve movements charting the collapse of ego and the violent beauty of becoming. Oceans, owls, neon cities — witness the dissolution.",
+      "A boy was reborn, and he is discovering everything again. This is the beginning of a new story for Leon Rivera.",
     color: "#00d4ff",
     secondaryColor: "#7c3aed",
     featured: true,
@@ -108,7 +108,7 @@ const ALBUMS = [
   //   secondaryColor: "#ff9900",
   //   featured: false,
   //   tracks: [
-  //     { number: 1, title: "Track One", duration: "3:45" },
+  //     { number: 1, title: "Track One" },
   //   ],
   //   streaming: {
   //     spotify: "https://open.spotify.com/album/...",

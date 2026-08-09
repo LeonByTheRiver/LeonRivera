@@ -141,6 +141,23 @@
 })();
 
 /* ──────────────────────────────────────────────────────────
+   LIQUID LIGHT BACKGROUND
+──────────────────────────────────────────────────────────── */
+(function initLiquidBackground() {
+  const root = document.documentElement;
+  let phase = 0;
+
+  function animateLiquid() {
+    phase += 0.0025;
+    root.style.setProperty('--liquid-x', `${50 + Math.sin(phase) * 10}%`);
+    root.style.setProperty('--liquid-y', `${45 + Math.cos(phase * 0.8) * 12}%`);
+    root.style.setProperty('--liquid-angle', `${135 + Math.sin(phase * 0.6) * 18}deg`);
+    requestAnimationFrame(animateLiquid);
+  }
+  animateLiquid();
+})();
+
+/* ──────────────────────────────────────────────────────────
    NAV — scroll state & mobile hamburger
 ──────────────────────────────────────────────────────────── */
 (function initNav() {

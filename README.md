@@ -39,8 +39,8 @@ Find the `ALBUMS` array and copy this template to the top:
   featured: false,                // set true to show in hero (only one at a time)
 
   tracks: [
-    { number: 1, title: "Track Name", duration: "3:45" },
-    { number: 2, title: "Track Name", duration: "4:12" },
+    { number: 1, title: "Track Name" },
+    { number: 2, title: "Track Name" },
   ],
 
   streaming: {

@@ -60,6 +60,9 @@ function buildAbout() {
   if (portraitArt && ARTIST.photo) {
     portraitArt.innerHTML = `<img src="${esc(ARTIST.photo)}" alt="${esc(ARTIST.name)}" class="about-portrait-img">`;
   }
+
+  const albumCount = document.getElementById('album-count');
+  if (albumCount) albumCount.textContent = `${ALBUMS.length}/20`;
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -70,8 +73,10 @@ function buildAlbums() {
   if (!grid) return;
 
   grid.innerHTML = ALBUMS.map(album => {
-    const streamLinks = Object.entries(album.streaming || {})
+    const streamEntries = Object.entries(album.streaming || {})
       .filter(([, url]) => url)
+    const primaryStream = streamEntries[0];
+    const streamLinks = streamEntries
       .map(([platform, url]) =>
         `<a href="${esc(url)}" class="stream-btn" target="_blank" rel="noopener">
           ${streamIcon(platform)}<span>${esc(platform)}</span>
@@ -79,7 +84,7 @@ function buildAlbums() {
       ).join('');
 
     return `
-    <article class="album-card reveal" data-album-id="${esc(album.id)}">
+    <article class="album-card reveal" data-album-id="${esc(album.id)}" style="--album-accent:${esc(album.color || 'var(--neon-cyan)')};--album-secondary:${esc(album.secondaryColor || 'var(--neon-purple)')}">
       <div class="album-cover-wrap">
         ${coverEl(album)}
         <div class="album-hover-tracklist">
@@ -92,10 +97,77 @@ function buildAlbums() {
       <div class="album-info">
         <div class="album-year">${esc(album.year)}</div>
         <div class="album-title">${esc(album.title)}</div>
+        <p class="album-desc">${esc(album.description || '')}</p>
+      </div>
+      <div class="album-actions">
+        <button class="album-details-btn" type="button" data-album-id="${esc(album.id)}">View album</button>
+        ${primaryStream ? `<a class="album-listen-btn" href="${esc(primaryStream[1])}" target="_blank" rel="noopener">Listen now<span aria-hidden="true">↗</span></a>` : ''}
       </div>
       ${streamLinks ? `<div class="album-streaming">${streamLinks}</div>` : ''}
     </article>`;
   }).join('');
+
+  grid.querySelectorAll('[data-album-id]').forEach(button => {
+    if (button.tagName !== 'BUTTON') return;
+    button.addEventListener('click', () => openAlbumModal(button.dataset.albumId, button));
+  });
+}
+
+let lastAlbumTrigger = null;
+
+function openAlbumModal(albumId, trigger = null) {
+  const album = ALBUMS.find(item => item.id === albumId);
+  const modal = document.getElementById('album-modal');
+  const content = document.getElementById('album-modal-content');
+  if (!album || !modal || !content) return;
+  lastAlbumTrigger = trigger;
+
+  const tracks = (album.tracks || []).map(track => `
+    <li class="album-modal-track">
+      <span class="track-number">${String(track.number).padStart(2, '0')}</span>
+      <span class="track-name">${esc(track.title)}</span>
+      ${track.lyrics ? `<a class="lyrics-link" href="${esc(track.lyrics)}" target="_blank" rel="noopener">Lyrics</a>` : ''}
+    </li>`).join('');
+  const primaryStream = Object.entries(album.streaming || {}).find(([, url]) => url);
+
+  content.innerHTML = `
+    <div class="album-modal-grid" style="--album-accent:${esc(album.color || 'var(--neon-cyan)')};--album-secondary:${esc(album.secondaryColor || 'var(--neon-purple)')}">
+      <div class="album-modal-art">${coverEl(album)}</div>
+      <div class="album-modal-copy">
+        <p class="section-label">${esc(album.year)} / Album</p>
+        <h2 id="album-modal-title">${esc(album.title)}</h2>
+        <p class="album-modal-description">${esc(album.description || '')}</p>
+        ${primaryStream ? `<a class="album-listen-btn modal-listen-btn" href="${esc(primaryStream[1])}" target="_blank" rel="noopener">Listen now<span aria-hidden="true">↗</span></a>` : ''}
+      </div>
+    </div>
+    <div class="album-modal-tracklist">
+      <div class="album-modal-heading"><span>Tracklist</span><span>${album.tracks?.length || 0} tracks</span></div>
+      <ol>${tracks}</ol>
+    </div>`;
+
+  modal.hidden = false;
+  requestAnimationFrame(() => modal.classList.add('open'));
+  document.body.style.overflow = 'hidden';
+  document.getElementById('album-modal-close')?.focus();
+}
+
+function closeAlbumModal() {
+  const modal = document.getElementById('album-modal');
+  if (!modal) return;
+  modal.classList.remove('open');
+  document.body.style.overflow = '';
+  setTimeout(() => {
+    modal.hidden = true;
+    lastAlbumTrigger?.focus();
+    lastAlbumTrigger = null;
+  }, 250);
+}
+
+function buildContact() {
+  const email = document.getElementById('footer-email');
+  if (!email || !ARTIST.contact) return;
+  email.href = `mailto:${esc(ARTIST.contact)}`;
+  email.textContent = ARTIST.contact;
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -236,6 +308,15 @@ document.addEventListener('DOMContentLoaded', () => {
   buildAbout();
   buildAlbums();
   buildSocial();
+  buildContact();
+
+  document.getElementById('album-modal-close')?.addEventListener('click', closeAlbumModal);
+  document.getElementById('album-modal')?.addEventListener('click', event => {
+    if (event.target.id === 'album-modal') closeAlbumModal();
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') closeAlbumModal();
+  });
 
   // After building, re-run scroll observer on new elements
   setTimeout(() => {
