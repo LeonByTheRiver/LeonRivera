@@ -37,6 +37,7 @@ Find the `ALBUMS` array and copy this template to the top:
   color: "#00d4ff",               // main accent color
   secondaryColor: "#7c3aed",
   featured: false,                // set true to show in hero (only one at a time)
+  smartLink: "https://ditto.fm/YOUR_RELEASE", // optional link to all platforms
 
   tracks: [
     { number: 1, title: "Track Name" },
@@ -70,6 +71,10 @@ Find the `ALBUMS` array and copy this template to the top:
 
 Save the file. Refresh your browser. Done.
 
+Albums appear in the order listed in `ALBUMS`. The featured album also appears in the hero; its badge opens the full tracklist. `smartLink` powers the main listening button when present, while direct platform URLs appear as separate buttons on both the card and album popup. Leave `year` empty until the release year is confirmed.
+
+For an album with a released single, put `smartLink` and `streaming` on that track and set `featuredTrack` to its number on the album. Baby Steps currently spotlights track 9, “Never Forget a Promise.” Its listening buttons are labeled as a single; add album-level links when the full album link is available.
+
 ---
 
 ## 🖼 Adding Album Art
@@ -83,6 +88,8 @@ Save the file. Refresh your browser. Done.
 ---
 
 ## 📝 Editing the Artist Bio
+
+The official profile picture is set by `ARTIST.photo` in `js/albums-data.js`, currently `assets/images/official2.jpeg`.
 
 In `js/albums-data.js`, find the `ARTIST` object near the bottom.
 Edit the `bio` array — each string is a separate paragraph:

@@ -16,6 +16,8 @@
  *  description → short paragraph shown on the album card
  *  color       → dominant accent color for this album (hex or css)
  *  featured    → true = show this album in the hero spotlight
+ *  smartLink   → optional all-platform listening URL (e.g. Ditto)
+ *  featuredTrack → track number to spotlight when only a single has listening links
  *  tracks      → array of {number, title, lyrics (optional URL)}
  *  streaming   → links to platforms {spotify, apple, youtube, tidal}
  *  videos      → array of {type:"youtube"|"local", id/src, title, thumbnail}
@@ -24,6 +26,46 @@
  */
 
 const ALBUMS = [
+  {
+    id: "baby-steps",
+    title: "Baby Steps",
+    year: "",
+    cover: "assets/images/Baby-Steps.png",
+    coverFallbackGradient: "linear-gradient(135deg, #24242a, #707078)",
+    description: "18 tracks. The next chapter after Born Again.",
+    color: "#d8e4e8",
+    secondaryColor: "#7c3aed",
+    featured: true,
+    featuredTrack: 9,
+    tracks: [
+      { number: 1, title: "Dreaming in the Grass" },
+      { number: 2, title: "Interested in You" },
+      { number: 3, title: "Not Words, Lies" },
+      { number: 4, title: "Touchin the Stars" },
+      { number: 5, title: "Wishing Well" },
+      { number: 6, title: "Finish My Sentences" },
+      { number: 7, title: "Slow Clicks" },
+      { number: 8, title: "Listening" },
+      {
+        number: 9,
+        title: "Never Forget a Promise",
+        smartLink: "https://ditto.fm/never-forget-a-promise",
+        streaming: { spotify: "https://open.spotify.com/track/4iGLH9ptrisN1T2gWSlkBj" },
+      },
+      { number: 10, title: "The Cowardly Dog" },
+      { number: 11, title: "Anthem" },
+      { number: 12, title: "Purified Pain" },
+      { number: 13, title: "When I Dance Alone" },
+      { number: 14, title: "I Feel Stellar" },
+      { number: 15, title: "20 veintiséis" },
+      { number: 16, title: "Pissing Me Off" },
+      { number: 17, title: "The Usual Suspects" },
+      { number: 18, title: "Next Wish" },
+    ],
+    streaming: {},
+    videos: [],
+    lore: [],
+  },
   {
     id: "born-again",
     title: "Born Again",
@@ -34,7 +76,7 @@ const ALBUMS = [
       "A boy was reborn, and he is discovering everything again. This is the beginning of a new story for Leon Rivera.",
     color: "#00d4ff",
     secondaryColor: "#7c3aed",
-    featured: true,
+    featured: false,
 
     tracks: [
       { number: 1,  title: "Do it Again" },
@@ -124,11 +166,11 @@ const ALBUMS = [
 // ── Artist bio data ──────────────────────────────────────────
 const ARTIST = {
   name: "Leon Rivera",
-  tagline: "One of the most interesting person you will ever meet.",
+  tagline: "One of the most interesting people you will ever meet.",
   bio: [
     "Hi, I'm Leon. I got a chance to live my life exactly as I wanted, and I'm doing just that. So, enjoy."
   ],
-  photo: "assets/images/Offical Pfp.png",
+  photo: "assets/images/official2.jpeg",
   social: {
     spotify:   "https://open.spotify.com/artist/3KCNJOV8owot6bcBVDiJhW",
     apple:     "https://music.apple.com/us/artist/leon-rivera/6792706068",

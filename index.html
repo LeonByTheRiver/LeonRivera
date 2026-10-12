@@ -5,21 +5,28 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description"
-    content="Leon Rivera — Official Website. Born Again. One of the most interesting person you will ever meet.">
+    content="Explore Leon Rivera's music, discover Baby Steps and Born Again, and follow the journey. Official artist website.">
   <meta name="theme-color" content="#03030a">
 
   <!-- Open Graph -->
-  <meta property="og:title" content="Leon Rivera — Born Again">
-  <meta property="og:description" content="One of the most interesting person you will ever meet.">
+  <meta property="og:title" content="Leon Rivera — Baby Steps">
+  <meta property="og:description" content="Discover Baby Steps: 18 tracks and the next chapter after Born Again. Explore the music and follow the journey.">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="assets/images/born-again-cover.png">
+  <meta property="og:image" content="https://leonbytheriver.github.io/LeonRivera/assets/images/Baby-Steps.png">
+  <meta property="og:image:alt" content="Baby Steps album artwork by Leon Rivera">
+  <meta property="og:url" content="https://leonbytheriver.github.io/LeonRivera/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Leon Rivera — Baby Steps">
+  <meta name="twitter:description" content="Explore Baby Steps, Born Again, and the music of Leon Rivera.">
+  <meta name="twitter:image" content="https://leonbytheriver.github.io/LeonRivera/assets/images/Baby-Steps.png">
   <link rel="canonical" href="https://leonbytheriver.github.io/LeonRivera/">
 
-  <title>Leon Rivera — Born Again</title>
+  <title>Leon Rivera — Baby Steps</title>
 
   <!-- Preconnect for Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400&display=swap">
 
   <!-- Favicon / Website Logo -->
   <link rel="icon" type="image/png" href="assets/images/Website Logo.png">
@@ -30,6 +37,7 @@
 </head>
 
 <body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
 
   <!-- ── Atmosphere layers ─────────────────────────────── -->
   <canvas id="particle-canvas" aria-hidden="true"></canvas>
@@ -43,17 +51,17 @@
   <div class="yt-modal-backdrop" id="yt-modal" role="dialog" aria-modal="true" aria-label="Video player">
     <div class="yt-modal-inner">
       <button class="yt-modal-close" id="yt-close" aria-label="Close video">✕</button>
-      <iframe id="yt-iframe" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      <iframe id="yt-iframe" title="Leon Rivera video player" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
     </div>
   </div>
 
   <!-- Album detail modal -->
-  <div class="album-modal-backdrop" id="album-modal" role="dialog" aria-modal="true" aria-labelledby="album-modal-title" hidden>
+  <dialog class="album-modal-backdrop" id="album-modal" aria-labelledby="album-modal-title">
     <div class="album-modal-inner">
       <button class="album-modal-close" id="album-modal-close" type="button" aria-label="Close album details">✕</button>
       <div id="album-modal-content"></div>
     </div>
-  </div>
+  </dialog>
 
   <!-- ════════════════════════════════════════════════════
        NAVIGATION
@@ -71,17 +79,19 @@
     </ul>
 
     <!-- Mobile hamburger -->
-    <button class="nav-hamburger" id="nav-hamburger" aria-label="Open menu" aria-expanded="false">
+    <button class="nav-hamburger" id="nav-hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="nav-mobile-drawer">
       <span></span><span></span><span></span>
     </button>
   </nav>
 
   <!-- Mobile drawer -->
-  <div class="nav-mobile-drawer" id="nav-mobile-drawer" role="dialog" aria-modal="true" aria-label="Mobile menu">
+  <nav class="nav-mobile-drawer" id="nav-mobile-drawer" aria-label="Mobile menu" inert>
     <a href="#about">About</a>
     <a href="#albums">Albums</a>
     <a href="#social">Follow</a>
-  </div>
+  </nav>
+
+  <main id="main-content" tabindex="-1">
 
   <!-- ════════════════════════════════════════════════════
        ❶ HERO
@@ -98,16 +108,17 @@
       <span class="name-accent">Rivera</span>
     </h1>
 
-    <p class="hero-tagline">One of the most interesting person you will ever meet</p>
+    <p class="hero-tagline">One of the most interesting people you will ever meet</p>
 
     <!-- Album badge — populated by site-builder.js -->
     <a href="#albums" class="hero-album-badge" id="hero-album-badge" aria-label="Featured album">
       <div id="hero-badge-cover"></div>
       <div class="badge-info">
-        <div class="badge-label">New Album</div>
-        <div class="badge-title" id="hero-badge-title">Born Again</div>
+        <div class="badge-label">Featured Album</div>
+        <div class="badge-title" id="hero-badge-title">Baby Steps</div>
       </div>
     </a>
+    <div class="hero-actions" id="hero-actions"></div>
 
     <!-- Scroll cue -->
     <div class="hero-scroll-indicator" aria-hidden="true">
@@ -141,7 +152,7 @@
         <div class="about-text">
           <p class="section-label reveal">The Artist</p>
           <h2 class="section-title reveal reveal-delay-1">
-            Its never too late<br><em>to try again</em>
+            It's never too late<br><em>to try again</em>
           </h2>
           <div class="section-divider reveal reveal-delay-2" aria-hidden="true"></div>
 
@@ -152,6 +163,10 @@
             <div class="stat-item">
               <span class="stat-number" id="album-count">0/20</span>
               <span class="stat-label">Albums</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number" id="track-count">0</span>
+              <span class="stat-label">Tracks</span>
             </div>
           </div>
         </div>
@@ -190,11 +205,13 @@
           </h2>
         </div>
         <!-- Social links — populated by site-builder.js -->
-        <div class="social-links reveal reveal-delay-2" id="social-links" role="list" aria-label="Social media links">
+        <div class="social-links reveal reveal-delay-2" id="social-links" aria-label="Social media links">
         </div>
       </div>
     </div>
   </section>
+
+  </main>
 
   <!-- ════════════════════════════════════════════════════
        ❾ FOOTER
@@ -204,7 +221,7 @@
       <div class="footer-inner">
         <div class="footer-brand">
           <span class="nav-logo">Leon <span>Rivera</span></span>
-          <p>One of the most interesting person you will ever meet.</p>
+          <p>One of the most interesting people you will ever meet.</p>
         </div>
 
         <div class="footer-contact">

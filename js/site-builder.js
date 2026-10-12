@@ -10,7 +10,32 @@
 /* ── Helper: sanitize text for HTML ────────────────────────*/
 const esc = (s) => String(s)
   .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-  .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
+const platformName = platform => ({
+  spotify: 'Spotify', apple: 'Apple Music', deezer: 'Deezer',
+  youtube: 'YouTube', tidal: 'Tidal',
+})[platform] || platform;
+
+const listeningRelease = album => (album.smartLink || Object.values(album.streaming || {}).some(Boolean))
+  ? album : album.tracks?.find(track => track.number === album.featuredTrack);
+const listeningUrl = album => {
+  const release = listeningRelease(album);
+  return release?.smartLink || Object.values(release?.streaming || {}).find(Boolean);
+};
+const listeningLabel = album => listeningRelease(album) === album ? 'Listen' : 'Listen to the single';
+
+function albumStreamingLinks(album) {
+  const release = listeningRelease(album);
+  if (!release) return '';
+  const links = Object.entries(release.streaming || {}).filter(([, url]) => url)
+    .map(([platform, url]) => `<a href="${esc(url)}" class="stream-btn" target="_blank" rel="noopener noreferrer"
+      aria-label="Listen to ${esc(release.title)} on ${esc(platformName(platform))}">
+      ${streamIcon(platform)}<span>${esc(platformName(platform))}</span></a>`);
+  if (release.smartLink) links.push(`<a href="${esc(release.smartLink)}" class="stream-btn" target="_blank" rel="noopener noreferrer"
+    aria-label="${esc(release.title)} listening links">${release === album ? '' : 'Single · '}All platforms <span aria-hidden="true">↗</span></a>`);
+  return links.join('');
+}
 
 /* ── Helper: streaming platform icons ──────────────────────*/
 const streamIcon = (platform) => ({
@@ -24,7 +49,7 @@ const streamIcon = (platform) => ({
 /* ── Helper: cover image or placeholder ────────────────────*/
 function coverEl(album, extraClass = '') {
   if (album.cover) {
-    return `<img class="album-cover-img ${extraClass}" src="${esc(album.cover)}" alt="${esc(album.title)} cover" loading="lazy"
+    return `<img class="album-cover-img ${extraClass}" src="${esc(album.cover)}" alt="${esc(album.title)} cover" loading="lazy" decoding="async" width="1440" height="1440"
       onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
       <div class="album-cover-placeholder" style="display:none; background:${esc(album.coverFallbackGradient || '#0a0a1a')}">${esc(album.title[0])}</div>`;
   }
@@ -38,13 +63,19 @@ function buildHero() {
   const featured = ALBUMS.find(a => a.featured) || ALBUMS[0];
   if (!featured) return;
 
-  const badgeCover = featured.cover
-    ? `<img class="badge-cover" src="${esc(featured.cover)}" alt="" onerror="this.style.background='${esc(featured.coverFallbackGradient||'#111')}';">`
-    : `<div class="badge-cover" style="background:${esc(featured.coverFallbackGradient||'#111')};display:flex;align-items:center;justify-content:center;
-       font-family:var(--font-display);font-size:1.5rem;color:rgba(0,212,255,0.4)">${esc(featured.title[0])}</div>`;
-
-  document.getElementById('hero-badge-cover').innerHTML = badgeCover;
+  document.getElementById('hero-badge-cover').innerHTML = coverEl(featured, 'badge-cover');
   document.getElementById('hero-badge-title').textContent = featured.title;
+  const badge = document.getElementById('hero-album-badge');
+  badge.setAttribute('aria-label', `View ${featured.title} album details`);
+  badge.addEventListener('click', event => {
+    event.preventDefault();
+    openAlbumModal(featured.id, badge);
+  });
+  const heroActions = document.getElementById('hero-actions');
+  const url = listeningUrl(featured);
+  if (heroActions) heroActions.innerHTML = `${url ? `<a class="hero-listen-btn" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${listeningLabel(featured)} <span aria-hidden="true">↗</span></a>` : ''}
+    <a class="hero-explore-btn" href="#albums">Explore the albums <span aria-hidden="true">↓</span></a>`;
+  document.querySelector('.hero-tagline').textContent = ARTIST.tagline;
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -58,11 +89,13 @@ function buildAbout() {
   // Handle portrait photo
   const portraitArt = document.querySelector('.portrait-art');
   if (portraitArt && ARTIST.photo) {
-    portraitArt.innerHTML = `<img src="${esc(ARTIST.photo)}" alt="${esc(ARTIST.name)}" class="about-portrait-img">`;
+    portraitArt.innerHTML = `<img src="${esc(ARTIST.photo)}" alt="${esc(ARTIST.name)}" class="about-portrait-img" loading="lazy" decoding="async">`;
   }
 
   const albumCount = document.getElementById('album-count');
   if (albumCount) albumCount.textContent = `${ALBUMS.length}/20`;
+  const trackCount = document.getElementById('track-count');
+  if (trackCount) trackCount.textContent = ALBUMS.reduce((total, album) => total + (album.tracks?.length || 0), 0);
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -73,18 +106,11 @@ function buildAlbums() {
   if (!grid) return;
 
   grid.innerHTML = ALBUMS.map(album => {
-    const streamEntries = Object.entries(album.streaming || {})
-      .filter(([, url]) => url)
-    const primaryStream = streamEntries[0];
-    const streamLinks = streamEntries
-      .map(([platform, url]) =>
-        `<a href="${esc(url)}" class="stream-btn" target="_blank" rel="noopener">
-          ${streamIcon(platform)}<span>${esc(platform)}</span>
-        </a>`
-      ).join('');
+    const primaryUrl = listeningUrl(album);
+    const streamLinks = albumStreamingLinks(album);
 
     return `
-    <article class="album-card reveal" data-album-id="${esc(album.id)}" style="--album-accent:${esc(album.color || 'var(--neon-cyan)')};--album-secondary:${esc(album.secondaryColor || 'var(--neon-purple)')}">
+    <article class="album-card reveal" role="listitem" id="album-${esc(album.id)}" data-album-id="${esc(album.id)}" style="--album-accent:${esc(album.color || 'var(--neon-cyan)')};--album-secondary:${esc(album.secondaryColor || 'var(--neon-purple)')}">
       <div class="album-cover-wrap">
         ${coverEl(album)}
         <div class="album-hover-tracklist">
@@ -95,13 +121,13 @@ function buildAlbums() {
         </div>
       </div>
       <div class="album-info">
-        <div class="album-year">${esc(album.year)}</div>
-        <div class="album-title">${esc(album.title)}</div>
+        <div class="album-year">${album.featured ? 'Featured · ' : ''}${album.year ? `${esc(album.year)} · ` : ''}${album.tracks?.length || 0} tracks</div>
+        <h3 class="album-title">${esc(album.title)}</h3>
         <p class="album-desc">${esc(album.description || '')}</p>
       </div>
       <div class="album-actions">
-        <button class="album-details-btn" type="button" data-album-id="${esc(album.id)}">View album</button>
-        ${primaryStream ? `<a class="album-listen-btn" href="${esc(primaryStream[1])}" target="_blank" rel="noopener">Listen now<span aria-hidden="true">↗</span></a>` : ''}
+        <button class="album-details-btn" type="button" data-album-id="${esc(album.id)}" aria-label="View ${esc(album.title)} album details">View album</button>
+        ${primaryUrl ? `<a class="album-listen-btn" href="${esc(primaryUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Listen to ${esc(listeningRelease(album).title)}">${listeningLabel(album)}<span aria-hidden="true">↗</span></a>` : ''}
       </div>
       ${streamLinks ? `<div class="album-streaming">${streamLinks}</div>` : ''}
     </article>`;
@@ -113,31 +139,37 @@ function buildAlbums() {
   });
 }
 
-let lastAlbumTrigger = null;
-
 function openAlbumModal(albumId, trigger = null) {
   const album = ALBUMS.find(item => item.id === albumId);
   const modal = document.getElementById('album-modal');
   const content = document.getElementById('album-modal-content');
   if (!album || !modal || !content) return;
-  lastAlbumTrigger = trigger;
+  if (modal.open) return;
+  if (trigger) trigger.focus();
 
   const tracks = (album.tracks || []).map(track => `
     <li class="album-modal-track">
       <span class="track-number">${String(track.number).padStart(2, '0')}</span>
       <span class="track-name">${esc(track.title)}</span>
+      ${track.smartLink || Object.values(track.streaming || {}).some(Boolean) ? `<span class="track-listening-links">
+        ${Object.entries(track.streaming || {}).filter(([, url]) => url).map(([platform, url]) => `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="Listen to ${esc(track.title)} on ${esc(platformName(platform))}">${esc(platformName(platform))} <span aria-hidden="true">↗</span></a>`).join('')}
+        ${track.smartLink ? `<a href="${esc(track.smartLink)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(track.title)} listening links">All platforms <span aria-hidden="true">↗</span></a>` : ''}
+      </span>` : ''}
       ${track.lyrics ? `<a class="lyrics-link" href="${esc(track.lyrics)}" target="_blank" rel="noopener">Lyrics</a>` : ''}
     </li>`).join('');
-  const primaryStream = Object.entries(album.streaming || {}).find(([, url]) => url);
+  const primaryUrl = listeningUrl(album);
+  content.style.setProperty('--album-accent', album.color || 'var(--neon-cyan)');
 
   content.innerHTML = `
     <div class="album-modal-grid" style="--album-accent:${esc(album.color || 'var(--neon-cyan)')};--album-secondary:${esc(album.secondaryColor || 'var(--neon-purple)')}">
       <div class="album-modal-art">${coverEl(album)}</div>
       <div class="album-modal-copy">
-        <p class="section-label">${esc(album.year)} / Album</p>
+        <p class="section-label">${album.year ? `${esc(album.year)} / ` : ''}Album</p>
         <h2 id="album-modal-title">${esc(album.title)}</h2>
         <p class="album-modal-description">${esc(album.description || '')}</p>
-        ${primaryStream ? `<a class="album-listen-btn modal-listen-btn" href="${esc(primaryStream[1])}" target="_blank" rel="noopener">Listen now<span aria-hidden="true">↗</span></a>` : ''}
+        ${listeningRelease(album) && listeningRelease(album) !== album ? `<p class="album-single-label">Single: ${esc(listeningRelease(album).title)}</p>` : ''}
+        ${primaryUrl ? `<a class="album-listen-btn modal-listen-btn" href="${esc(primaryUrl)}" target="_blank" rel="noopener noreferrer">${listeningLabel(album)}<span aria-hidden="true">↗</span></a>` : ''}
+        <div class="album-modal-streaming">${albumStreamingLinks(album)}</div>
       </div>
     </div>
     <div class="album-modal-tracklist">
@@ -145,22 +177,19 @@ function openAlbumModal(albumId, trigger = null) {
       <ol>${tracks}</ol>
     </div>`;
 
-  modal.hidden = false;
-  requestAnimationFrame(() => modal.classList.add('open'));
+  modal.showModal();
+  modal.classList.add('open');
+  modal.querySelector('.album-modal-inner').scrollTop = 0;
   document.body.style.overflow = 'hidden';
   document.getElementById('album-modal-close')?.focus();
 }
 
 function closeAlbumModal() {
   const modal = document.getElementById('album-modal');
-  if (!modal) return;
+  if (!modal?.open) return;
   modal.classList.remove('open');
+  modal.close();
   document.body.style.overflow = '';
-  setTimeout(() => {
-    modal.hidden = true;
-    lastAlbumTrigger?.focus();
-    lastAlbumTrigger = null;
-  }, 250);
 }
 
 function buildContact() {
@@ -314,8 +343,22 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('album-modal')?.addEventListener('click', event => {
     if (event.target.id === 'album-modal') closeAlbumModal();
   });
-  document.addEventListener('keydown', event => {
-    if (event.key === 'Escape') closeAlbumModal();
+  document.getElementById('album-modal')?.addEventListener('cancel', event => {
+    event.preventDefault();
+    closeAlbumModal();
+  });
+  document.getElementById('album-modal')?.addEventListener('keydown', event => {
+    if (event.key !== 'Tab') return;
+    const focusable = [...event.currentTarget.querySelectorAll('button, a[href]')];
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
   });
 
   // After building, re-run scroll observer on new elements

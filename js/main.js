@@ -6,6 +6,9 @@
  * ============================================================
  */
 
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+
 /* ──────────────────────────────────────────────────────────
    CUSTOM CURSOR
 ──────────────────────────────────────────────────────────── */
@@ -13,6 +16,7 @@
   const dot  = document.getElementById('cursor-dot');
   const ring = document.getElementById('cursor-ring');
   if (!dot || !ring) return;
+  if (!finePointer.matches || reducedMotion.matches) return;
 
   let mx = -100, my = -100; // mouse position
   let rx = -100, ry = -100; // ring position (lags behind)
@@ -48,7 +52,7 @@
 ──────────────────────────────────────────────────────────── */
 (function initParticles() {
   const canvas = document.getElementById('particle-canvas');
-  if (!canvas) return;
+  if (!canvas || reducedMotion.matches) return;
   const ctx = canvas.getContext('2d');
 
   let W, H, particles = [];
@@ -148,6 +152,7 @@
   let phase = 0;
 
   function animateLiquid() {
+    if (reducedMotion.matches) return;
     phase += 0.0025;
     root.style.setProperty('--liquid-x', `${50 + Math.sin(phase) * 10}%`);
     root.style.setProperty('--liquid-y', `${45 + Math.cos(phase * 0.8) * 12}%`);
@@ -164,6 +169,16 @@
   const nav      = document.getElementById('main-nav');
   const burger   = document.getElementById('nav-hamburger');
   const drawer   = document.getElementById('nav-mobile-drawer');
+  function closeMenu(restoreFocus = false) {
+    if (!burger || !drawer) return;
+    if (restoreFocus) burger.focus();
+    burger.classList.remove('open');
+    drawer.classList.remove('open');
+    drawer.inert = true;
+    burger.setAttribute('aria-expanded', 'false');
+    burger.setAttribute('aria-label', 'Open menu');
+    document.body.style.overflow = '';
+  }
 
   // Scroll → add glass bg
   window.addEventListener('scroll', () => {
@@ -173,17 +188,39 @@
   // Hamburger toggle
   if (burger && drawer) {
     burger.addEventListener('click', () => {
-      burger.classList.toggle('open');
-      drawer.classList.toggle('open');
-      document.body.style.overflow = drawer.classList.contains('open') ? 'hidden' : '';
+      if (drawer.classList.contains('open')) { closeMenu(); return; }
+      burger.classList.add('open');
+      drawer.classList.add('open');
+      drawer.inert = false;
+      burger.setAttribute('aria-expanded', 'true');
+      burger.setAttribute('aria-label', 'Close menu');
+      document.body.style.overflow = 'hidden';
+      drawer.querySelector('a')?.focus();
     });
     // Close on link click
     drawer.querySelectorAll('a').forEach(a => {
       a.addEventListener('click', () => {
-        burger.classList.remove('open');
-        drawer.classList.remove('open');
-        document.body.style.overflow = '';
+        const target = document.querySelector(a.hash);
+        closeMenu();
+        if (target) { target.tabIndex = -1; target.focus({ preventScroll: true }); }
       });
+    });
+    document.addEventListener('keydown', event => {
+      if (!drawer.classList.contains('open')) return;
+      if (event.key === 'Escape') closeMenu(true);
+      if (event.key === 'Tab') {
+        const first = drawer.querySelector('a');
+        const last = drawer.querySelector('a:last-child');
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); burger.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); burger.focus(); }
+        else if (document.activeElement === burger) { event.preventDefault(); (event.shiftKey ? last : first).focus(); }
+      }
+    });
+    document.addEventListener('click', event => {
+      if (drawer.classList.contains('open') && !drawer.contains(event.target) && !burger.contains(event.target)) closeMenu(true);
+    });
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768 && drawer.classList.contains('open')) closeMenu();
     });
   }
 })();
@@ -221,6 +258,7 @@
   };
 
   function closeModal() {
+    if (!backdrop.classList.contains('open')) return;
     backdrop.classList.remove('open');
     iframe.src = '';
     document.body.style.overflow = '';
@@ -255,11 +293,9 @@ window.filterVideos = function(category) {
 ──────────────────────────────────────────────────────────── */
 (function initParallax() {
   const hero = document.getElementById('hero');
-  if (!hero) return;
+  if (!hero || reducedMotion.matches) return;
   window.addEventListener('scroll', () => {
     const y = window.scrollY;
-    if (y < window.innerHeight) {
-      hero.style.transform = `translateY(${y * 0.3}px)`;
-    }
+    hero.style.transform = `translateY(${Math.min(y, window.innerHeight) * 0.3}px)`;
   }, { passive: true });
 })();
