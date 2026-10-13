@@ -29,7 +29,7 @@ function albumStreamingLinks(album) {
   const release = listeningRelease(album);
   if (!release) return '';
   const links = Object.entries(release.streaming || {}).filter(([, url]) => url)
-    .map(([platform, url]) => `<a href="${esc(url)}" class="stream-btn" target="_blank" rel="noopener noreferrer"
+    .map(([platform, url]) => `<a href="${esc(url)}" class="stream-btn" data-platform="${esc(platform)}" target="_blank" rel="noopener noreferrer"
       aria-label="Listen to ${esc(release.title)} on ${esc(platformName(platform))}">
       ${streamIcon(platform)}<span>${esc(platformName(platform))}</span></a>`);
   if (release.smartLink) links.push(`<a href="${esc(release.smartLink)}" class="stream-btn" target="_blank" rel="noopener noreferrer"
@@ -110,7 +110,9 @@ function buildAlbums() {
     const streamLinks = albumStreamingLinks(album);
 
     return `
-    <article class="album-card reveal" role="listitem" id="album-${esc(album.id)}" data-album-id="${esc(album.id)}" style="--album-accent:${esc(album.color || 'var(--neon-cyan)')};--album-secondary:${esc(album.secondaryColor || 'var(--neon-purple)')}">
+    <article class="album-card reveal${album.featured ? ' is-featured' : ''}" role="listitem" id="album-${esc(album.id)}" data-album-id="${esc(album.id)}" style="--album-accent:${esc(album.color || 'var(--neon-cyan)')};--album-secondary:${esc(album.secondaryColor || 'var(--neon-purple)')}">
+      <div class="album-art">
+      <div class="album-vinyl" aria-hidden="true"><div class="vinyl-disc"${album.cover ? ` style="--vinyl-label:url('${esc(new URL(album.cover, document.baseURI).href)}')"` : ''}></div></div>
       <div class="album-cover-wrap">
         ${coverEl(album)}
         <div class="album-hover-tracklist">
@@ -120,6 +122,8 @@ function buildAlbums() {
           </ul>
         </div>
       </div>
+      </div>
+      <div class="album-body">
       <div class="album-info">
         <div class="album-year">${album.featured ? 'Featured · ' : ''}${album.year ? `${esc(album.year)} · ` : ''}${album.tracks?.length || 0} tracks</div>
         <h3 class="album-title">${esc(album.title)}</h3>
@@ -130,6 +134,7 @@ function buildAlbums() {
         ${primaryUrl ? `<a class="album-listen-btn" href="${esc(primaryUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Listen to ${esc(listeningRelease(album).title)}">${listeningLabel(album)}<span aria-hidden="true">↗</span></a>` : ''}
       </div>
       ${streamLinks ? `<div class="album-streaming">${streamLinks}</div>` : ''}
+      </div>
     </article>`;
   }).join('');
 
@@ -147,8 +152,8 @@ function openAlbumModal(albumId, trigger = null) {
   if (modal.open) return;
   if (trigger) trigger.focus();
 
-  const tracks = (album.tracks || []).map(track => `
-    <li class="album-modal-track">
+  const tracks = (album.tracks || []).map((track, i) => `
+    <li class="album-modal-track" style="--i:${i}">
       <span class="track-number">${String(track.number).padStart(2, '0')}</span>
       <span class="track-name">${esc(track.title)}</span>
       ${track.smartLink || Object.values(track.streaming || {}).some(Boolean) ? `<span class="track-listening-links">
@@ -322,11 +327,26 @@ function buildSocial() {
   container.innerHTML = Object.entries(ARTIST.social || {})
     .filter(([, url]) => url)
     .map(([platform, url]) =>
-      `<a href="${esc(url)}" class="social-link" target="_blank" rel="noopener">
+      `<a href="${esc(url)}" class="social-link" data-platform="${esc(platform)}" target="_blank" rel="noopener">
         ${socialIcons[platform] || ''}
         <span>${esc(displayNames[platform] || platform)}</span>
       </a>`
     ).join('');
+}
+
+/* ══════════════════════════════════════════════════════════
+   BUILD TRACK MARQUEE — featured album's tracks scroll past
+══════════════════════════════════════════════════════════ */
+function buildMarquee() {
+  const marquee = document.getElementById('track-marquee');
+  const featured = ALBUMS.find(a => a.featured) || ALBUMS[0];
+  if (!marquee || !featured?.tracks?.length) { marquee?.remove(); return; }
+
+  const items = featured.tracks.map(t => `<span class="marquee-item">
+      <span class="marquee-num">${String(t.number).padStart(2, '0')}</span>${esc(t.title)}<span class="marquee-sep">✦</span>
+    </span>`).join('');
+  // Two copies so the loop is seamless
+  marquee.innerHTML = `<div class="marquee-track">${items}${items}</div>`;
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -338,6 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
   buildAlbums();
   buildSocial();
   buildContact();
+  buildMarquee();
 
   document.getElementById('album-modal-close')?.addEventListener('click', closeAlbumModal);
   document.getElementById('album-modal')?.addEventListener('click', event => {

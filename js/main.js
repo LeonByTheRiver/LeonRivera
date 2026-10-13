@@ -291,11 +291,21 @@ window.filterVideos = function(category) {
 /* ──────────────────────────────────────────────────────────
    SMOOTH PARALLAX HERO
 ──────────────────────────────────────────────────────────── */
+// Hero content drifts down and fades as you scroll away. Only the inner
+// content moves; the section itself stays put so it never overlaps About.
 (function initParallax() {
   const hero = document.getElementById('hero');
-  if (!hero || reducedMotion.matches) return;
+  const content = document.getElementById('hero-content');
+  if (!hero || !content || reducedMotion.matches) return;
+  let ticking = false;
   window.addEventListener('scroll', () => {
-    const y = window.scrollY;
-    hero.style.transform = `translateY(${Math.min(y, window.innerHeight) * 0.3}px)`;
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const p = Math.min(window.scrollY / hero.offsetHeight, 1);
+      content.style.transform = `translateY(${p * 140}px) scale(${1 - p * 0.06})`;
+      content.style.opacity = Math.max(0, 1 - p * 1.3);
+      ticking = false;
+    });
   }, { passive: true });
 })();

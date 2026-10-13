@@ -67,6 +67,7 @@
        NAVIGATION
   ═════════════════════════════════════════════════════ -->
   <nav id="main-nav" role="navigation" aria-label="Main navigation">
+    <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
     <a href="#hero" class="nav-logo">
       Leon <span>Rivera</span>
     </a>
@@ -101,6 +102,7 @@
     <div class="hero-glow hero-glow-1" aria-hidden="true"></div>
     <div class="hero-glow hero-glow-2" aria-hidden="true"></div>
 
+    <div class="hero-content" id="hero-content">
     <p class="hero-eyebrow">Official Site</p>
 
     <h1 class="hero-name">
@@ -114,11 +116,12 @@
     <a href="#albums" class="hero-album-badge" id="hero-album-badge" aria-label="Featured album">
       <div id="hero-badge-cover"></div>
       <div class="badge-info">
-        <div class="badge-label">Featured Album</div>
+        <div class="badge-label"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Featured Album</div>
         <div class="badge-title" id="hero-badge-title">Baby Steps</div>
       </div>
     </a>
     <div class="hero-actions" id="hero-actions"></div>
+    </div>
 
     <!-- Scroll cue -->
     <div class="hero-scroll-indicator" aria-hidden="true">
@@ -127,7 +130,8 @@
     </div>
   </section>
 
-  <div class="section-transition" aria-hidden="true"></div>
+  <!-- Scrolling tracklist ticker — populated by site-builder.js -->
+  <div class="track-marquee" id="track-marquee" aria-hidden="true"></div>
 
   <!-- ════════════════════════════════════════════════════
        ❷ ABOUT
@@ -201,7 +205,7 @@
           <p class="section-label reveal">Connect</p>
           <h2 class="reveal reveal-delay-1">
             Follow the<br>
-            <span style="font-family:var(--font-display);font-style:italic;color:var(--neon-cyan)">journey</span>
+            <em class="gradient-text">journey</em>
           </h2>
         </div>
         <!-- Social links — populated by site-builder.js -->
@@ -249,6 +253,7 @@
   <script src="js/albums-data.js"></script>
   <script src="js/site-builder.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/effects.js"></script>
 
   <script>
     // Set copyright year dynamically
