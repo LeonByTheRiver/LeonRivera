@@ -1,0 +1,9 @@
+// Cloudflare Workers config — publishes this folder as a static website.
+// Live at https://leonrivera.mr-leon-by-the-river.workers.dev/
+{
+  "name": "leonrivera",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./"
+  }
+}

@@ -29,7 +29,7 @@ const ALBUMS = [
   {
     id: "baby-steps",
     title: "Baby Steps",
-    year: "",
+    year: "2026",
     cover: "assets/images/Baby-Steps.png",
     coverFallbackGradient: "linear-gradient(135deg, #24242a, #707078)",
     description: "18 tracks. The next chapter after Born Again.",
@@ -60,9 +60,10 @@ const ALBUMS = [
       { number: 15, title: "20 veintiséis" },
       { number: 16, title: "Pissing Me Off" },
       { number: 17, title: "The Usual Suspects" },
-      { number: 18, title: "Next Wish" },
+      { number: 18, title: "Next High" },
     ],
-    streaming: {},
+    // Album link — currently the same Spotify link as the single
+    streaming: { spotify: "https://open.spotify.com/track/4iGLH9ptrisN1T2gWSlkBj" },
     videos: [],
     lore: [],
   },
