@@ -51,6 +51,17 @@ function initCursor() {
     requestAnimationFrame(follow);
   })();
 
+  // An open <dialog> sits in the browser's top layer, above every z-index,
+  // so the cursor moves inside whichever dialog is open and back out after
+  const home = dot.parentElement;
+  const follow = () => {
+    const open = document.querySelector('dialog[open]');
+    const parent = open || home;
+    if (ring.parentElement !== parent) parent.append(dot, ring);
+  };
+  document.querySelectorAll('dialog').forEach(d =>
+    new MutationObserver(follow).observe(d, { attributes: true, attributeFilter: ['open'] }));
+
   const targets = 'a, button, .record, .track-name';
   document.addEventListener('pointerover', e => ring.classList.toggle('is-hover', !!e.target.closest(targets)));
   document.addEventListener('pointerdown', () => ring.classList.add('is-press'));
