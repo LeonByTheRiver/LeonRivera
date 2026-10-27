@@ -3,7 +3,7 @@
  *  LEON RIVERA — MAIN SITE SCRIPT
  *  Handles: cursor, nav bar + menu, section entrances,
  *  the three scroll scenes (hero card, records, tracks),
- *  and the video player.
+ *  album colour themes, and the video player.
  *  Loaded after site-builder.js; runs once the page is built.
  * ============================================================
  */
@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initEntrances();
   initScenes();
   initTracks();
+  initThemes();
   initVideo();
 });
 
@@ -201,6 +202,7 @@ function initTracks() {
     current?.classList.remove('is-current');
     item.classList.add('is-current');
     current = item;
+    item.parentElement.dataset.albumRef = item.dataset.albumRef;
     const { album, number, step, cover: src } = item.dataset;
     left.textContent = `${album}, track ${number}`;
     right.textContent = `Step ${step} of ${items.length}`;
@@ -221,6 +223,66 @@ function initTracks() {
     item.addEventListener('focusin', () => setCurrent(item));
     item.addEventListener('pointerenter', () => setCurrent(item));
   });
+}
+
+/* ──────────────────────────────────────────────────────────
+   ALBUM THEMES — the page takes the colours of whichever album
+   the visitor is on: the record card nearest the middle in
+   Records, the current song in Tracks. Everywhere else it is
+   the site's own blue. Colours come from `theme` in albums-data.js.
+──────────────────────────────────────────────────────────── */
+function initThemes() {
+  const root = document.documentElement;
+  const meta = document.querySelector('meta[name="theme-color"]');
+  const records = document.getElementById('records');
+  const tracks = document.getElementById('tracks');
+  const list = document.getElementById('tracks-list');
+  const vars = {
+    bg: '--bg', surface: '--surface', stone: '--stone', ink: '--ink', muted: '--muted', dim: '--dim',
+    accent: '--accent', accentHover: '--accent-hover', accentInk: '--accent-ink',
+    frameFilter: '--frame-filter', photoGray: '--photo-gray',
+  };
+  const defaultBg = getComputedStyle(root).getPropertyValue('--bg').trim();
+
+  let applied, ticking = false;
+  const apply = albumId => {
+    if (albumId === applied) return;
+    applied = albumId;
+    const theme = ALBUMS.find(a => a.id === albumId)?.theme || {};
+    Object.entries(vars).forEach(([key, prop]) =>
+      theme[key] != null ? root.style.setProperty(prop, String(theme[key])) : root.style.removeProperty(prop));
+    root.dataset.album = albumId || '';
+    meta?.setAttribute('content', theme.bg || defaultBg);
+  };
+
+  const holds = el => { const r = el.getBoundingClientRect(); return r.top <= innerHeight / 2 && r.bottom >= innerHeight / 2; };
+
+  const pick = () => {
+    ticking = false;
+    if (holds(tracks)) return apply(list.dataset.albumRef);
+    if (holds(records)) {
+      // The card closest to the middle of the screen (sideways on desktop, downwards on phones)
+      let best = null, bestDist = Infinity;
+      records.querySelectorAll('.record').forEach(card => {
+        const r = card.getBoundingClientRect();
+        const dist = wideScreen.matches
+          ? Math.abs(r.left + r.width / 2 - innerWidth / 2)
+          : Math.abs(r.top + r.height / 2 - innerHeight / 2);
+        if (dist < bestDist) { bestDist = dist; best = card; }
+      });
+      const reach = wideScreen.matches ? innerWidth * 0.4 : innerHeight * 0.6;
+      return apply(best && bestDist < reach ? best.dataset.themeAlbum : undefined);
+    }
+    apply(undefined);
+  };
+
+  const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(pick); } };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  // Hovering or focusing a song also moves the theme with it
+  list.addEventListener('focusin', onScroll);
+  list.addEventListener('pointerover', onScroll);
+  pick();
 }
 
 /* ──────────────────────────────────────────────────────────

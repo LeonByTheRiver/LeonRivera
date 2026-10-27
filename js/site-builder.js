@@ -71,7 +71,6 @@ function buildHero() {
 function buildRecords() {
   const track = document.getElementById('records-track');
   if (!track) return;
-  const tones = ['accent', 'bone', 'stone', 'night'];
   const cards = [];
 
   ALBUMS.forEach(album => {
@@ -80,13 +79,13 @@ function buildRecords() {
       title: album.title,
       text: [album.year && `${album.year}.`, /\btracks?\b/i.test(desc) ? '' : `${album.tracks?.length || 0} tracks.`, desc]
         .filter(Boolean).join(' '),
-      cover: album.cover, alt: `${album.title} cover`, albumId: album.id,
+      cover: album.cover, alt: `${album.title} cover`, albumId: album.id, themeOf: album, solid: true,
     });
     const single = featuredTrackOf(album);
     if (single && hasLinks(single)) cards.push({
       title: single.title,
       text: `The single from ${album.title}, track ${single.number}. Out now on every platform.`,
-      cover: album.cover, alt: `${album.title} cover`, url: linkOf(single), crop: true,
+      cover: album.cover, alt: `${album.title} cover`, url: linkOf(single), crop: true, themeOf: album,
     });
   });
 
@@ -104,8 +103,15 @@ function buildRecords() {
       ? `<a class="record-hit" href="${esc(card.url)}" target="_blank" rel="noopener noreferrer" aria-label="Listen to ${esc(card.title)}">${esc(card.title)}</a>`
       : `<a class="record-hit" href="${esc(card.href)}">${esc(card.title)}</a>`;
 
-  track.insertAdjacentHTML('beforeend', cards.map((card, i) => `
-    <article class="record tone-${tones[i % tones.length]}">
+  // Album cards take the album's accent; the single takes its paper colour
+  const cardColours = card => {
+    const t = card.themeOf?.theme;
+    if (!t) return '';
+    return card.solid ? `--card-bg:${t.accent};--card-ink:${t.accentInk}` : `--card-bg:${t.bg};--card-ink:${t.ink}`;
+  };
+
+  track.insertAdjacentHTML('beforeend', cards.map(card => `
+    <article class="record"${card.themeOf ? ` data-theme-album="${esc(card.themeOf.id)}"` : ''} style="${esc(cardColours(card))}">
       <div class="record-art${card.crop ? ' is-crop' : ''}"><img src="${esc(card.cover)}" alt="${esc(card.alt)}" loading="lazy" decoding="async" width="1200" height="1200"></div>
       <div class="record-panel">
         <h3 class="record-name">${hit(card)}</h3>
@@ -130,7 +136,7 @@ function buildTracks() {
     (album.tracks || []).map(track => ({ album, track })));
 
   list.innerHTML = all.map(({ album, track }, i) => {
-    const data = `data-step="${i + 1}" data-album="${esc(album.title)}" data-cover="${esc(album.cover)}" data-number="${track.number}" data-year="${esc(album.year || '')}"`;
+    const data = `data-step="${i + 1}" data-album-ref="${esc(album.id)}" data-album="${esc(album.title)}" data-cover="${esc(album.cover)}" data-number="${track.number}" data-year="${esc(album.year || '')}"`;
     const name = hasLinks(track)
       ? outLink(linkOf(track), esc(track.title), ` class="track-name is-live" aria-label="Listen to ${esc(track.title)}"`)
       : `<button class="track-name" type="button" data-album-id="${esc(album.id)}" aria-label="${esc(track.title)}, from ${esc(album.title)}">${esc(track.title)}</button>`;
@@ -147,14 +153,9 @@ function buildTracks() {
 ══════════════════════════════════════════════════════════ */
 function buildAbout() {
   const lede = document.getElementById('about-lede');
-  if (lede && ARTIST.bio?.length) lede.textContent = ARTIST.bio.join(' ');
-  const left = albumGoal() - ALBUMS.length;
-  const bio = document.getElementById('about-bio');
-  if (bio) bio.textContent = `${inWords(ALBUMS.length)} ${ALBUMS.length === 1 ? 'album' : 'albums'} out${left > 0 ? `, ${inWords(left).toLowerCase()} still to make` : ''}.`;
+  if (lede && ARTIST.bio?.length) lede.textContent = ARTIST.bio.join(' ').replace(/^Hi, I'm Leon\.\s*/, '');
   const photo = document.getElementById('about-photo');
   if (photo && ARTIST.photo) photo.src = ARTIST.photo;
-  const young = document.getElementById('about-young');
-  if (young && ARTIST.childPhoto) young.src = ARTIST.childPhoto;
 
   const n = ALBUMS.length, goal = albumGoal(), tracks = totalTracks();
   document.getElementById('goal-line').textContent =

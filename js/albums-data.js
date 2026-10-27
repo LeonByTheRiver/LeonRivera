@@ -15,6 +15,10 @@
  *  cover       → path to album art (put images in /assets/images/)
  *  description → short paragraph shown on the album card
 
+ *  theme       → optional page colours while a visitor is on this album
+ *                (bg, surface, stone, ink, muted, dim, accent, accentHover,
+ *                accentInk; plus frameFilter and photoGray for photos).
+ *                Leave it out and the album uses the site's blue colours.
  *  featured    → true = show this album in the hero spotlight
  *  smartLink   → optional all-platform listening URL (e.g. Ditto)
  *  featuredTrack → track number to spotlight when only a single has listening links
@@ -33,6 +37,13 @@ const ALBUMS = [
     cover: "assets/images/web/baby-steps.jpg",
     description: "18 tracks. The next chapter after Born Again.",
     featured: true,
+    // Pale grey paper and charcoal scrawl, taken from the cover
+    theme: {
+      bg: "#dededb", surface: "#d0d0cc", stone: "#c3c3be",
+      ink: "#141414", muted: "#45453f", dim: "#66665f",
+      accent: "#141414", accentHover: "#3a3a36", accentInk: "#ededea",
+      frameFilter: "none", photoGray: 1,
+    },
     featuredTrack: 9,
     tracks: [
       { number: 1, title: "Dreaming in the Grass" },
@@ -72,6 +83,13 @@ const ALBUMS = [
     description:
       "A boy was reborn, and he is discovering everything again. This is the beginning of a new story for Leon Rivera.",
     featured: false,
+    // Wet asphalt and yellow road paint, taken from the cover
+    theme: {
+      bg: "#0d0d0c", surface: "#1b1b19", stone: "#2c2b28",
+      ink: "#efefec", muted: "#b3afa6", dim: "#8a867e",
+      accent: "#e8c61e", accentHover: "#f5d63a", accentInk: "#0d0d0c",
+      frameFilter: "grayscale(0.2) contrast(1.5) brightness(0.42)", photoGray: 0,
+    },
 
     tracks: [
       { number: 1,  title: "Do it Again" },
@@ -162,8 +180,7 @@ const ARTIST = {
   bio: [
     "Hi, I'm Leon. I got a chance to live my life exactly as I wanted, and I'm doing just that. So, enjoy."
   ],
-  photo: "assets/images/web/leon-portrait.jpg",
-  childPhoto: "assets/images/web/leon-young.jpg",
+  photo: "assets/images/web/leon-young.jpg",
   albumGoal: 20,       // how many albums Leon plans to release
   social: {
     spotify:   "https://open.spotify.com/artist/3KCNJOV8owot6bcBVDiJhW",

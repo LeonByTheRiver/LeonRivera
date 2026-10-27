@@ -1,21 +1,42 @@
 /* ============================================================
    LEON RIVERA — STYLES
-   Night road: wet asphalt, road-paint yellow, bead white.
+   Cinematic night blue by default. While a visitor is on an album
+   (in Records or Tracks) the page takes that album's colours, set
+   per album in albums-data.js and applied by main.js.
    One typeface (Bricolage Grotesque), five sizes, square corners.
    ============================================================ */
 
 /* ── Tokens ─────────────────────────────────────────────── */
+/* Registered so the colours can glide from one album to the next */
+@property --bg { syntax: '<color>'; inherits: true; initial-value: #060a14; }
+@property --surface { syntax: '<color>'; inherits: true; initial-value: #0d1526; }
+@property --stone { syntax: '<color>'; inherits: true; initial-value: #18233a; }
+@property --ink { syntax: '<color>'; inherits: true; initial-value: #e6edf5; }
+@property --muted { syntax: '<color>'; inherits: true; initial-value: #9fb0c4; }
+@property --dim { syntax: '<color>'; inherits: true; initial-value: #6f86a3; }
+@property --accent { syntax: '<color>'; inherits: true; initial-value: #3fc8f2; }
+@property --accent-hover { syntax: '<color>'; inherits: true; initial-value: #74d9f7; }
+@property --accent-ink { syntax: '<color>'; inherits: true; initial-value: #04121c; }
+@property --photo-gray { syntax: '<number>'; inherits: true; initial-value: 1; }
+
 :root {
-  --bg: #0d0d0c;            /* wet asphalt */
-  --surface: #1b1b19;
-  --stone: #2c2b28;
-  --ink: #efefec;           /* bead white */
-  --muted: #b3afa6;
-  --dim: #8a867e;           /* track names at rest, 4.9:1 on --bg */
-  --accent: #e8c61e;        /* road paint */
-  --accent-hover: #f5d63a;
-  --accent-ink: #0d0d0c;
-  --olive: #3d3a22;
+  /* Default: cinematic night blue */
+  --bg: #060a14;
+  --surface: #0d1526;
+  --stone: #18233a;
+  --ink: #e6edf5;
+  --muted: #9fb0c4;
+  --dim: #6f86a3;           /* track names at rest, 5:1 on --bg */
+  --accent: #3fc8f2;        /* the old site's cyan, softened */
+  --accent-hover: #74d9f7;
+  --accent-ink: #04121c;
+  --photo-gray: 1;          /* 1 = photos in black and white, 0 = full colour */
+  --frame-filter: grayscale(1) brightness(0.45);
+  --theme-time: 0.9s;
+  transition: --bg var(--theme-time), --surface var(--theme-time), --stone var(--theme-time),
+    --ink var(--theme-time), --muted var(--theme-time), --dim var(--theme-time),
+    --accent var(--theme-time), --accent-hover var(--theme-time), --accent-ink var(--theme-time),
+    --photo-gray var(--theme-time);
 
   --font: 'Bricolage Grotesque', system-ui, sans-serif;
   --step-small: clamp(0.875rem, 0.85rem + 0.1vw, 0.9375rem);
@@ -138,9 +159,14 @@ html { scrollbar-color: var(--stone) var(--bg); }
 .hero-stage { position: sticky; top: 0; height: 100svh; overflow: hidden; background: var(--bg); }
 .hero-photo {
   position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 55% 55%;
-  filter: brightness(calc(0.42 + var(--hero-p, 0) * 0.5));
+  filter: grayscale(calc(1 - var(--hero-p, 0))) brightness(calc(0.5 + var(--hero-p, 0) * 0.42));
   animation: drift 24s ease-in-out infinite alternate;
 }
+.hero-stage::before {
+  content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: var(--bg); opacity: calc(0.55 - var(--hero-p, 0) * 0.55);
+}
+.hero-caption, .hero-card { z-index: 2; }
 @keyframes drift { from { transform: scale(1.08) translate(-1%, 0); } to { transform: scale(1) translate(0, 0); } }
 .hero-caption {
   position: absolute; right: var(--gutter); bottom: var(--gutter);
@@ -188,8 +214,13 @@ html { scrollbar-color: var(--stone) var(--bg); }
 .records-stage { position: sticky; top: 0; height: 100svh; overflow: hidden; }
 .records-photo {
   position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
-  filter: brightness(0.42) saturate(0.9);
+  filter: grayscale(var(--photo-gray)) brightness(0.6);
 }
+.records-stage::before {
+  content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: var(--bg); opacity: 0.55;
+}
+.records-window { z-index: 2; }
 .records-track {
   position: relative; height: 100%;
   display: flex; align-items: center; gap: 40px;
@@ -230,10 +261,8 @@ html { scrollbar-color: var(--stone) var(--bg); }
 }
 .record-name { margin: 0; font-size: var(--step-lead); font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
 .record-text { max-width: 28ch; font-size: var(--step-small); line-height: 1.4; text-align: right; }
-.tone-accent { background: var(--accent); color: var(--accent-ink); }
-.tone-bone   { background: var(--ink); color: var(--accent-ink); }
-.tone-stone  { background: var(--stone); color: var(--ink); }
-.tone-night  { background: var(--olive); color: var(--ink); }
+/* Each card wears its own album's colours, whatever the page is showing */
+.record-panel { background: var(--card-bg, var(--stone)); color: var(--card-ink, var(--ink)); transition: background-color 0.4s; }
 
 /* ── Tracks: names walk past a held frame ───────────────── */
 .tracks {
@@ -246,7 +275,7 @@ html { scrollbar-color: var(--stone) var(--bg); }
   height: var(--frame); margin-bottom: calc(-1 * var(--frame));
 }
 .tracks-frame { position: relative; z-index: 0; width: var(--frame); height: var(--frame); margin: 0 auto; overflow: hidden; background: var(--stone); }
-.tracks-frame img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(0.2) contrast(1.5) brightness(0.42); transition: opacity 0.2s, transform 0.6s var(--ease-out); }
+.tracks-frame img { width: 100%; height: 100%; object-fit: cover; filter: var(--frame-filter); transition: opacity 0.2s, transform 0.6s var(--ease-out); }
 .tracks-frame img.is-swapping { opacity: 0; transform: scale(1.04); }
 .tracks-fact {
   position: absolute; top: 50%; width: max-content; max-width: 22ch;
@@ -273,37 +302,14 @@ html { scrollbar-color: var(--stone) var(--bg); }
 .track-name.is-live span[aria-hidden] { font-size: 0.5em; vertical-align: 0.6em; }
 .track.is-current .track-name.is-live { color: var(--accent-hover); }
 
-/* ── About: pinned title, portraits pass ────────────────── */
-.about { position: relative; padding-bottom: 12svh; }
-.about-run {
-  position: relative; padding: 0 var(--gutter);
-  display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 48px; align-items: start;
-}
-.about-pin {
-  position: sticky; top: 0; height: 100svh;
-  display: grid; align-content: center;
-}
-.about-title {
-  font-size: min(var(--step-display), 9.5vw); font-weight: 700; letter-spacing: -0.05em; line-height: 0.85;
-  color: var(--accent);
-}
-.about-lede { margin-top: 32px; max-width: 30ch; font-size: var(--step-lead); font-weight: 500; line-height: 1.2; letter-spacing: -0.02em; }
-.about-portraits { padding: 24svh 0 16svh; display: grid; }
-.portrait { width: clamp(260px, 26vw, 400px); display: grid; gap: 16px; }
-.portrait:nth-child(odd) { justify-self: start; }
-.portrait:nth-child(even) { justify-self: end; margin-top: -24svh; }
-.portrait + .portrait:nth-child(odd) { margin-top: -12svh; }
-.portrait img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; background: var(--stone); }
-.portrait figcaption { display: grid; gap: 2px; max-width: 300px; }
-.portrait strong { font-size: var(--step-body); font-weight: 700; }
-.portrait span { font-size: var(--step-small); color: var(--muted); }
-.portrait p { margin-top: 8px; font-size: var(--step-body); line-height: 1.45; }
-
-.goal {
-  padding: 0 var(--gutter);
-  display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 48px; align-items: end;
-}
-.goal-line { font-size: var(--step-lead); font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; max-width: 20ch; }
+/* ── About: one photo, the bio, the ruler of twenty ─────── */
+.about { padding: 20svh var(--gutter) 0; }
+.about-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 64px; align-items: end; }
+.about-photo { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; object-position: 50% 30%; background: var(--stone); }
+.about-copy { display: grid; gap: 32px; }
+.about-lede { max-width: 30ch; font-size: var(--step-lead); font-weight: 500; line-height: 1.25; letter-spacing: -0.02em; }
+.goal { display: grid; gap: 24px; margin-top: 24px; }
+.goal-line { font-size: var(--step-body); font-weight: 600; color: var(--muted); }
 .goal-ruler { display: grid; grid-template-columns: repeat(20, 1fr); gap: 6px; align-items: end; }
 .goal-ruler li { height: 96px; background: var(--stone); transform-origin: bottom; }
 .goal-ruler li:nth-child(5n) { height: 128px; }
@@ -314,11 +320,13 @@ html { scrollbar-color: var(--stone) var(--bg); }
   font-size: var(--step-small); font-weight: 700; white-space: nowrap;
 }
 .js .goal-ruler li { transform: scaleY(0); transition: transform 0.7s var(--ease-out) calc(var(--i) * 35ms); }
-.js .goal-ruler.is-in li { transform: none; }
+.js .goal.is-in .goal-ruler li { transform: none; }
 
 /* ── Follow: a card on the road ─────────────────────────── */
 .follow { position: relative; min-height: 100svh; margin-top: 15svh; }
-.follow-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(0.75); }
+.follow-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: grayscale(var(--photo-gray)) brightness(0.8); }
+.follow::before { content: ''; position: absolute; inset: 0; z-index: 1; background: var(--bg); opacity: 0.45; pointer-events: none; }
+.follow-card { z-index: 2; }
 .follow-card {
   position: absolute; top: 96px; right: var(--gutter);
   width: 400px; padding: 32px 32px 0;
@@ -326,7 +334,7 @@ html { scrollbar-color: var(--stone) var(--bg); }
   background: var(--ink); color: var(--accent-ink);
 }
 .follow-card h2 { font-size: var(--step-lead); font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
-.follow-group h3 { font-size: var(--step-small); font-weight: 600; color: #57544e; margin-bottom: 6px; }
+.follow-group h3 { font-size: var(--step-small); font-weight: 600; color: var(--stone); margin-bottom: 6px; }
 .follow-group ul { display: grid; }
 .follow-group a {
   display: flex; justify-content: space-between; padding: 7px 0;
@@ -418,7 +426,7 @@ html { scrollbar-color: var(--stone) var(--bg); }
 
   .records { height: auto; }
   .records-stage { position: relative; height: auto; overflow: visible; }
-  .records-window { position: static; overflow: visible; }
+  .records-window { position: relative; overflow: visible; }
   .records-photo { height: 100%; }
   .records-track {
     width: auto; height: auto; flex-direction: column; align-items: stretch; gap: 24px;
@@ -436,19 +444,11 @@ html { scrollbar-color: var(--stone) var(--bg); }
   .tracks-fact-left { right: auto; left: calc(50% - var(--frame) / 2); text-align: left; }
   .tracks-fact-right { left: auto; right: calc(50% - var(--frame) / 2); text-align: right; }
 
-  .about-run { display: block; padding: 0; }
-  .about-pin { position: static; height: auto; padding: 96px var(--gutter) 0; }
-  .about-title { font-size: 17vw; }
-  .about-portraits { padding: 40px var(--gutter) 72px; gap: 56px; }
-  .portrait + .portrait:nth-child(odd) { margin-top: 0; }
-  .portrait { width: 72%; }
-  .portrait:nth-child(odd) { margin-left: 0; }
-  .portrait:nth-child(even) { margin-right: 0; margin-top: 0; }
-  .about { padding-bottom: 0; }
+  .about { padding-top: 96px; }
+  .about-grid { grid-template-columns: 1fr; gap: 32px; }
+  .about-photo { width: 72%; }
   .follow { margin-top: 96px; }
 
-  .goal { grid-template-columns: 1fr; gap: 32px; }
-  .goal-line { max-width: none; }
   .hero-what { font-size: var(--step-lead); }
   .facts { font-size: var(--step-body); }
   .hero-line { display: none; }
@@ -459,6 +459,7 @@ html { scrollbar-color: var(--stone) var(--bg); }
 
   .follow { min-height: 0; padding-bottom: 48px; }
   .follow-photo { position: relative; height: 70svh; }
+  .follow::before { bottom: auto; height: 70svh; }
   .follow-card { position: relative; top: auto; right: auto; width: auto; margin: -80px var(--gutter) 0; padding: 24px 24px 0; }
   .follow-btn { margin: 8px -24px 0; }
 
@@ -479,6 +480,7 @@ html { scrollbar-color: var(--stone) var(--bg); }
 /* ── Reduced motion: keep everything, drop the travel ───── */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  :root { --theme-time: 0.01ms; }
   *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; transition-delay: 0s !important; }
   .js .reveal { opacity: 1; transform: none; }
   .js .goal-ruler li { transform: none; }
@@ -486,6 +488,6 @@ html { scrollbar-color: var(--stone) var(--bg); }
   .hero-photo { filter: brightness(0.5); }
   .records { height: auto; }
   .records-stage { position: relative; height: auto; }
-  .records-window { position: static; }
+  .records-window { position: relative; }
   .records-track { width: auto; flex-wrap: wrap; padding: 120px var(--gutter); }
 }
