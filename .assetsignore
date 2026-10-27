@@ -6,3 +6,7 @@ node_modules
 wrangler.jsonc
 README.md
 github-sync.ps1
+.taste-skill
+PRODUCT.md
+.claude
+.gitignore

@@ -14,7 +14,7 @@
  *  year        → release year
  *  cover       → path to album art (put images in /assets/images/)
  *  description → short paragraph shown on the album card
- *  color       → dominant accent color for this album (hex or css)
+
  *  featured    → true = show this album in the hero spotlight
  *  smartLink   → optional all-platform listening URL (e.g. Ditto)
  *  featuredTrack → track number to spotlight when only a single has listening links
@@ -30,11 +30,8 @@ const ALBUMS = [
     id: "baby-steps",
     title: "Baby Steps",
     year: "2026",
-    cover: "assets/images/Baby-Steps.png",
-    coverFallbackGradient: "linear-gradient(135deg, #24242a, #707078)",
+    cover: "assets/images/web/baby-steps.jpg",
     description: "18 tracks. The next chapter after Born Again.",
-    color: "#d8e4e8",
-    secondaryColor: "#7c3aed",
     featured: true,
     featuredTrack: 9,
     tracks: [
@@ -71,12 +68,9 @@ const ALBUMS = [
     id: "born-again",
     title: "Born Again",
     year: "2026",
-    cover: "assets/images/born-again-cover.png",  // Replace with your image
-    coverFallbackGradient: "linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 40%, #0d1b2a 100%)",
+    cover: "assets/images/web/born-again.jpg",
     description:
       "A boy was reborn, and he is discovering everything again. This is the beginning of a new story for Leon Rivera.",
-    color: "#00d4ff",
-    secondaryColor: "#7c3aed",
     featured: false,
 
     tracks: [
@@ -145,10 +139,7 @@ const ALBUMS = [
   //   title: "My New Album",
   //   year: "2025",
   //   cover: "assets/images/my-new-album-cover.jpg",
-  //   coverFallbackGradient: "linear-gradient(135deg, #1a0000, #2a0a10)",
   //   description: "Description of the album...",
-  //   color: "#ff3366",
-  //   secondaryColor: "#ff9900",
   //   featured: false,
   //   tracks: [
   //     { number: 1, title: "Track One" },
@@ -171,7 +162,9 @@ const ARTIST = {
   bio: [
     "Hi, I'm Leon. I got a chance to live my life exactly as I wanted, and I'm doing just that. So, enjoy."
   ],
-  photo: "assets/images/official2.jpeg",
+  photo: "assets/images/web/leon-portrait.jpg",
+  childPhoto: "assets/images/web/leon-young.jpg",
+  albumGoal: 20,       // how many albums Leon plans to release
   social: {
     spotify:   "https://open.spotify.com/artist/3KCNJOV8owot6bcBVDiJhW",
     apple:     "https://music.apple.com/us/artist/leon-rivera/6792706068",

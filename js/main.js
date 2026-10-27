@@ -1,311 +1,252 @@
 /**
  * ============================================================
  *  LEON RIVERA — MAIN SITE SCRIPT
- *  Handles: custom cursor, particle system, nav scroll,
- *  reveal animations, audio visualizer, modal, page builder
+ *  Handles: cursor, nav bar + menu, section entrances,
+ *  the three scroll scenes (hero card, records, tracks),
+ *  and the video player.
+ *  Loaded after site-builder.js; runs once the page is built.
  * ============================================================
  */
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+const wideScreen = window.matchMedia('(min-width: 900px)');
+const clamp01 = v => Math.min(1, Math.max(0, v));
 
-/* ──────────────────────────────────────────────────────────
-   CUSTOM CURSOR
-──────────────────────────────────────────────────────────── */
-(function initCursor() {
-  const dot  = document.getElementById('cursor-dot');
-  const ring = document.getElementById('cursor-ring');
-  if (!dot || !ring) return;
-  if (!finePointer.matches || reducedMotion.matches) return;
-
-  let mx = -100, my = -100; // mouse position
-  let rx = -100, ry = -100; // ring position (lags behind)
-
-  document.addEventListener('mousemove', e => {
-    mx = e.clientX; my = e.clientY;
-    dot.style.left = mx + 'px';
-    dot.style.top  = my + 'px';
-  });
-
-  // Smooth ring lag
-  function animateRing() {
-    rx += (mx - rx) * 0.12;
-    ry += (my - ry) * 0.12;
-    ring.style.left = rx + 'px';
-    ring.style.top  = ry + 'px';
-    requestAnimationFrame(animateRing);
-  }
-  animateRing();
-
-  // Hover state on interactive elements
-  const hoverTargets = 'a, button, .album-card, .video-card, .lore-card, .track-item';
-  document.addEventListener('mouseover', e => {
-    if (e.target.closest(hoverTargets)) ring.classList.add('hovering');
-  });
-  document.addEventListener('mouseout', e => {
-    if (e.target.closest(hoverTargets)) ring.classList.remove('hovering');
-  });
-})();
-
-/* ──────────────────────────────────────────────────────────
-   AMBIENT PARTICLE SYSTEM
-──────────────────────────────────────────────────────────── */
-(function initParticles() {
-  const canvas = document.getElementById('particle-canvas');
-  if (!canvas || reducedMotion.matches) return;
-  const ctx = canvas.getContext('2d');
-
-  let W, H, particles = [];
-  const COUNT = window.innerWidth < 768 ? 50 : 120;
-
-  function resize() {
-    W = canvas.width  = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-  }
-  resize();
-  window.addEventListener('resize', resize);
-
-  // Mouse position for reactive particles
-  let mouseX = W / 2, mouseY = H / 2;
-  document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
-
-  class Particle {
-    constructor() { this.reset(true); }
-    reset(randomY = false) {
-      this.x   = Math.random() * W;
-      this.y   = randomY ? Math.random() * H : H + 10;
-      this.vy  = -(0.2 + Math.random() * 0.6);
-      this.vx  = (Math.random() - 0.5) * 0.2;
-      this.r   = 0.5 + Math.random() * 1.5;
-      this.alpha = 0.2 + Math.random() * 0.5;
-      // Colour mix: cyan or purple
-      this.hue = Math.random() > 0.6 ? 190 : 270;
-      this.life = 0;
-      this.maxLife = 200 + Math.random() * 300;
-    }
-    update() {
-      this.life++;
-      if (this.life > this.maxLife) { this.reset(); return; }
-
-      // Gentle drift toward mouse (very subtle)
-      const dx = (mouseX - this.x) / W;
-      const dy = (mouseY - this.y) / H;
-      this.vx += dx * 0.0003;
-      this.vy += dy * 0.0003;
-
-      this.x += this.vx;
-      this.y += this.vy;
-
-      // Fade in/out
-      const progress = this.life / this.maxLife;
-      this.currentAlpha = this.alpha *
-        (progress < 0.1 ? progress / 0.1 :
-         progress > 0.8 ? (1 - progress) / 0.2 : 1);
-
-      if (this.y < -10) this.reset();
-    }
-    draw() {
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-      ctx.fillStyle = `hsla(${this.hue}, 80%, 70%, ${this.currentAlpha})`;
-      ctx.fill();
-    }
-  }
-
-  for (let i = 0; i < COUNT; i++) particles.push(new Particle());
-
-  // Draw faint connection lines between close particles
-  function drawConnections() {
-    const threshold = 100;
-    for (let i = 0; i < particles.length; i++) {
-      for (let j = i + 1; j < particles.length; j++) {
-        const dx = particles[i].x - particles[j].x;
-        const dy = particles[i].y - particles[j].y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < threshold) {
-          const opacity = (1 - dist / threshold) * 0.08;
-          ctx.beginPath();
-          ctx.moveTo(particles[i].x, particles[i].y);
-          ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.strokeStyle = `rgba(0, 212, 255, ${opacity})`;
-          ctx.lineWidth = 0.5;
-          ctx.stroke();
-        }
-      }
-    }
-  }
-
-  function animate() {
-    ctx.clearRect(0, 0, W, H);
-    drawConnections();
-    particles.forEach(p => { p.update(); p.draw(); });
-    requestAnimationFrame(animate);
-  }
-  animate();
-})();
-
-/* ──────────────────────────────────────────────────────────
-   LIQUID LIGHT BACKGROUND
-──────────────────────────────────────────────────────────── */
-(function initLiquidBackground() {
-  const root = document.documentElement;
-  let phase = 0;
-
-  function animateLiquid() {
-    if (reducedMotion.matches) return;
-    phase += 0.0025;
-    root.style.setProperty('--liquid-x', `${50 + Math.sin(phase) * 10}%`);
-    root.style.setProperty('--liquid-y', `${45 + Math.cos(phase * 0.8) * 12}%`);
-    root.style.setProperty('--liquid-angle', `${135 + Math.sin(phase * 0.6) * 18}deg`);
-    requestAnimationFrame(animateLiquid);
-  }
-  animateLiquid();
-})();
-
-/* ──────────────────────────────────────────────────────────
-   NAV — scroll state & mobile hamburger
-──────────────────────────────────────────────────────────── */
-(function initNav() {
-  const nav      = document.getElementById('main-nav');
-  const burger   = document.getElementById('nav-hamburger');
-  const drawer   = document.getElementById('nav-mobile-drawer');
-  function closeMenu(restoreFocus = false) {
-    if (!burger || !drawer) return;
-    if (restoreFocus) burger.focus();
-    burger.classList.remove('open');
-    drawer.classList.remove('open');
-    drawer.inert = true;
-    burger.setAttribute('aria-expanded', 'false');
-    burger.setAttribute('aria-label', 'Open menu');
-    document.body.style.overflow = '';
-  }
-
-  // Scroll → add glass bg
-  window.addEventListener('scroll', () => {
-    nav.classList.toggle('scrolled', window.scrollY > 60);
-  }, { passive: true });
-
-  // Hamburger toggle
-  if (burger && drawer) {
-    burger.addEventListener('click', () => {
-      if (drawer.classList.contains('open')) { closeMenu(); return; }
-      burger.classList.add('open');
-      drawer.classList.add('open');
-      drawer.inert = false;
-      burger.setAttribute('aria-expanded', 'true');
-      burger.setAttribute('aria-label', 'Close menu');
-      document.body.style.overflow = 'hidden';
-      drawer.querySelector('a')?.focus();
-    });
-    // Close on link click
-    drawer.querySelectorAll('a').forEach(a => {
-      a.addEventListener('click', () => {
-        const target = document.querySelector(a.hash);
-        closeMenu();
-        if (target) { target.tabIndex = -1; target.focus({ preventScroll: true }); }
-      });
-    });
-    document.addEventListener('keydown', event => {
-      if (!drawer.classList.contains('open')) return;
-      if (event.key === 'Escape') closeMenu(true);
-      if (event.key === 'Tab') {
-        const first = drawer.querySelector('a');
-        const last = drawer.querySelector('a:last-child');
-        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); burger.focus(); }
-        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); burger.focus(); }
-        else if (document.activeElement === burger) { event.preventDefault(); (event.shiftKey ? last : first).focus(); }
-      }
-    });
-    document.addEventListener('click', event => {
-      if (drawer.classList.contains('open') && !drawer.contains(event.target) && !burger.contains(event.target)) closeMenu(true);
-    });
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 768 && drawer.classList.contains('open')) closeMenu();
-    });
-  }
-})();
-
-/* ──────────────────────────────────────────────────────────
-   SCROLL REVEAL ANIMATION
-──────────────────────────────────────────────────────────── */
-(function initScrollReveal() {
-  const observer = new IntersectionObserver(
-    (entries) => entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('visible');
-        observer.unobserve(e.target); // fire once
-      }
-    }),
-    { threshold: 0.12 }
-  );
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-})();
-
-
-
-/* ──────────────────────────────────────────────────────────
-   YOUTUBE MODAL
-──────────────────────────────────────────────────────────── */
-(function initModal() {
-  const backdrop = document.getElementById('yt-modal');
-  const iframe   = document.getElementById('yt-iframe');
-  const closeBtn = document.getElementById('yt-close');
-
-  window.openVideoModal = function(videoId) {
-    iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-    backdrop.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  };
-
-  function closeModal() {
-    if (!backdrop.classList.contains('open')) return;
-    backdrop.classList.remove('open');
-    iframe.src = '';
-    document.body.style.overflow = '';
-  }
-
-  if (closeBtn) closeBtn.addEventListener('click', closeModal);
-  if (backdrop) backdrop.addEventListener('click', e => {
-    if (e.target === backdrop) closeModal();
-  });
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeModal();
-  });
-})();
-
-
-
-/* ──────────────────────────────────────────────────────────
-   VIDEO TAB FILTER
-──────────────────────────────────────────────────────────── */
-window.filterVideos = function(category) {
-  document.querySelectorAll('.video-tab').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.cat === category);
-  });
-  document.querySelectorAll('.video-card').forEach(card => {
-    const show = category === 'all' || card.dataset.cat === category;
-    card.style.display = show ? 'block' : 'none';
-  });
+/* Progress (0 → 1) of the page through a tall wrapper whose stage is sticky */
+const pinProgress = el => {
+  const r = el.getBoundingClientRect();
+  const run = r.height - window.innerHeight;
+  return run > 0 ? clamp01(-r.top / run) : 0;
 };
 
+document.addEventListener('DOMContentLoaded', () => {
+  initCursor();
+  initBar();
+  initEntrances();
+  initScenes();
+  initTracks();
+  initVideo();
+});
+
 /* ──────────────────────────────────────────────────────────
-   SMOOTH PARALLAX HERO
+   CURSOR — a dot that follows, a ring that trails
 ──────────────────────────────────────────────────────────── */
-// Hero content drifts down and fades as you scroll away. Only the inner
-// content moves; the section itself stays put so it never overlaps About.
-(function initParallax() {
+function initCursor() {
+  const dot = document.getElementById('cursor-dot');
+  const ring = document.getElementById('cursor-ring');
+  if (!dot || !ring || !finePointer.matches || reducedMotion.matches) return;
+  document.documentElement.classList.add('has-cursor');
+
+  let mx = -100, my = -100, rx = -100, ry = -100;
+  document.addEventListener('pointermove', e => {
+    mx = e.clientX; my = e.clientY;
+    dot.style.transform = `translate(${mx}px, ${my}px)`;
+  });
+  (function follow() {
+    rx += (mx - rx) * 0.16;
+    ry += (my - ry) * 0.16;
+    ring.style.transform = `translate(${rx}px, ${ry}px)`;
+    requestAnimationFrame(follow);
+  })();
+
+  const targets = 'a, button, .record, .track-name';
+  document.addEventListener('pointerover', e => ring.classList.toggle('is-hover', !!e.target.closest(targets)));
+  document.addEventListener('pointerdown', () => ring.classList.add('is-press'));
+  document.addEventListener('pointerup', () => ring.classList.remove('is-press'));
+}
+
+/* ──────────────────────────────────────────────────────────
+   NAV BAR — solid once past the hero, menu drawer on phones
+──────────────────────────────────────────────────────────── */
+function initBar() {
+  const bar = document.getElementById('site-bar');
+  const menu = document.getElementById('bar-menu');
+  const drawer = document.getElementById('menu-drawer');
   const hero = document.getElementById('hero');
-  const content = document.getElementById('hero-content');
-  if (!hero || !content || reducedMotion.matches) return;
-  let ticking = false;
-  window.addEventListener('scroll', () => {
-    if (ticking) return;
-    ticking = true;
-    requestAnimationFrame(() => {
-      const p = Math.min(window.scrollY / hero.offsetHeight, 1);
-      content.style.transform = `translateY(${p * 140}px) scale(${1 - p * 0.06})`;
-      content.style.opacity = Math.max(0, 1 - p * 1.3);
-      ticking = false;
-    });
-  }, { passive: true });
-})();
+
+  // Tuck the bar away while reading downwards, bring it back on the way up
+  let lastY = window.scrollY;
+  const onScroll = () => {
+    const y = window.scrollY;
+    bar.classList.toggle('is-solid', y > hero.offsetHeight - window.innerHeight * 0.5);
+    if (Math.abs(y - lastY) > 6) {
+      bar.classList.toggle('is-tucked', y > lastY && y > window.innerHeight && !drawer.classList.contains('is-open'));
+      lastY = y;
+    }
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // Highlight the link for the section in view
+  const links = [...bar.querySelectorAll('.bar-links a')];
+  bar.addEventListener('focusin', () => bar.classList.remove('is-tucked'));
+  const io = new IntersectionObserver(entries => entries.forEach(entry => {
+    if (entry.isIntersecting) links.forEach(a => a.classList.toggle('is-active', a.hash === `#${entry.target.id}`));
+  }), { rootMargin: '-45% 0px -50% 0px' });
+  links.forEach(a => { const s = document.querySelector(a.hash); if (s) io.observe(s); });
+
+  const setOpen = open => {
+    drawer.classList.toggle('is-open', open);
+    drawer.inert = !open;
+    menu.setAttribute('aria-expanded', String(open));
+    menu.textContent = open ? 'Close' : 'Menu';
+    document.body.classList.toggle('is-locked', open);
+  };
+  menu.addEventListener('click', () => {
+    const open = !drawer.classList.contains('is-open');
+    setOpen(open);
+    if (open) drawer.querySelector('a').focus();
+  });
+  drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setOpen(false)));
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && drawer.classList.contains('is-open')) { setOpen(false); menu.focus(); }
+  });
+  wideScreen.addEventListener('change', () => setOpen(false));
+}
+
+/* ──────────────────────────────────────────────────────────
+   ENTRANCES — heading, then text, then picture, once
+──────────────────────────────────────────────────────────── */
+function initEntrances() {
+  // Stagger every revealed element after the first in its section
+  document.querySelectorAll('section, footer').forEach(section => {
+    section.querySelectorAll('.reveal').forEach((el, i) => el.style.setProperty('--d', `${Math.min(i, 4) * 80}ms`));
+  });
+  const io = new IntersectionObserver(entries => entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    entry.target.classList.add('is-in');
+    io.unobserve(entry.target);
+  }), { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+}
+
+/* ──────────────────────────────────────────────────────────
+   SCROLL SCENES
+   1. Hero: the card shrinks to a ticket stub in the bottom-left
+      and the Born Again photograph brightens behind it.
+   2. Records: the cards travel across the held road photo.
+──────────────────────────────────────────────────────────── */
+function initScenes() {
+  const hero = document.getElementById('hero');
+  const card = document.getElementById('hero-card');
+  const photo = hero.querySelector('.hero-photo');
+  const records = document.getElementById('records');
+  const track = document.getElementById('records-track');
+  const windowEl = records.querySelector('.records-window');
+
+  let cardBox = null, travel = 0, ticking = false;
+
+  const measure = () => {
+    card.style.transform = '';
+    track.style.transform = '';
+    const r = card.getBoundingClientRect();
+    const stage = hero.querySelector('.hero-stage').getBoundingClientRect();
+    cardBox = { left: r.left - stage.left, bottom: r.bottom - stage.top, height: stage.height };
+    travel = Math.max(0, track.scrollWidth - window.innerWidth);
+    update();
+  };
+
+  const update = () => {
+    ticking = false;
+    if (reducedMotion.matches) return;
+
+    // Hero card → stub
+    const p = pinProgress(hero);
+    const margin = wideScreen.matches ? 32 : 16;
+    const eased = 1 - Math.pow(1 - p, 2);
+    const scale = 1 - eased * (wideScreen.matches ? 0.68 : 0.6);
+    const dx = (margin - cardBox.left) * eased;
+    const dy = (cardBox.height - margin - cardBox.bottom) * eased;
+    card.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+    hero.style.setProperty('--hero-p', p.toFixed(3));
+
+    // Records travel sideways (desktop only — phones get a plain stack)
+    if (wideScreen.matches) {
+      const q = pinProgress(records);
+      track.style.transform = `translateX(${-travel * q}px)`;
+      // A card's words only show once the whole card is inside the window
+      const edge = windowEl.getBoundingClientRect().right + 1;
+      track.querySelectorAll('.record').forEach(rec => {
+        const r = rec.getBoundingClientRect();
+        rec.classList.toggle('is-whole', r.right <= edge && r.left >= -1);
+      });
+    }
+  };
+
+  const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', measure);
+  wideScreen.addEventListener('change', measure);
+  reducedMotion.addEventListener('change', measure);
+  if (photo.complete) measure(); else photo.addEventListener('load', measure, { once: true });
+  measure();
+  document.fonts?.ready.then(measure);
+}
+
+/* ──────────────────────────────────────────────────────────
+   TRACKS — whichever name crosses the middle of the screen
+   lights up and the held frame shows its album
+──────────────────────────────────────────────────────────── */
+function initTracks() {
+  const items = [...document.querySelectorAll('#tracks-list .track')];
+  const cover = document.getElementById('tracks-cover');
+  const left = document.getElementById('tracks-fact-left');
+  const right = document.getElementById('tracks-fact-right');
+  if (!items.length || !cover) return;
+
+  let current = null;
+  const setCurrent = item => {
+    if (item === current) return;
+    current?.classList.remove('is-current');
+    item.classList.add('is-current');
+    current = item;
+    const { album, number, step, cover: src } = item.dataset;
+    left.textContent = `${album}, track ${number}`;
+    right.textContent = `Step ${step} of ${items.length}`;
+    if (!cover.src.endsWith(src)) {
+      cover.classList.add('is-swapping');
+      setTimeout(() => { cover.src = src; cover.classList.remove('is-swapping'); }, 180);
+    }
+  };
+
+  const io = new IntersectionObserver(entries => entries.forEach(entry => {
+    if (entry.isIntersecting) setCurrent(entry.target);
+  }), { rootMargin: '-49% 0px -49% 0px' });
+  items.forEach(item => io.observe(item));
+  setCurrent(items[0]);
+
+  // Focus or hover also moves the frame, so the keyboard gets the same thing
+  items.forEach(item => {
+    item.addEventListener('focusin', () => setCurrent(item));
+    item.addEventListener('pointerenter', () => setCurrent(item));
+  });
+}
+
+/* ──────────────────────────────────────────────────────────
+   VIDEO PLAYER
+──────────────────────────────────────────────────────────── */
+function initVideo() {
+  const modal = document.getElementById('yt-modal');
+  const iframe = document.getElementById('yt-iframe');
+  const close = document.getElementById('yt-close');
+  if (!modal) return;
+  let returnTo = null;
+
+  window.openVideoModal = (videoId, trigger = null) => {
+    returnTo = trigger;
+    iframe.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(videoId)}?autoplay=1`;
+    modal.showModal();
+    document.body.classList.add('is-locked');
+  };
+  const shut = () => {
+    if (!modal.open) return;
+    modal.close();
+    iframe.src = '';
+    document.body.classList.remove('is-locked');
+    returnTo?.focus({ preventScroll: true });
+  };
+  close.addEventListener('click', shut);
+  modal.addEventListener('click', e => { if (e.target === modal) shut(); });
+  modal.addEventListener('cancel', e => { e.preventDefault(); shut(); });
+}

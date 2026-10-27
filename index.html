@@ -5,260 +5,221 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description"
-    content="Explore Leon Rivera's music, discover Baby Steps and Born Again, and follow the journey. Official artist website.">
-  <meta name="theme-color" content="#03030a">
+    content="Leon Rivera is an independent musician. Listen to Baby Steps, his new 18-track album, and Born Again.">
+  <meta name="theme-color" content="#0d0d0c">
 
   <!-- Open Graph -->
   <meta property="og:title" content="Leon Rivera — Baby Steps">
-  <meta property="og:description" content="Discover Baby Steps: 18 tracks and the next chapter after Born Again. Explore the music and follow the journey.">
+  <meta property="og:description" content="Baby Steps: 18 tracks, the next chapter after Born Again. Listen and follow the journey.">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="https://leonbytheriver.github.io/LeonRivera/assets/images/Baby-Steps.png">
+  <meta property="og:image" content="https://leonrivera.mr-leon-by-the-river.workers.dev/assets/images/web/baby-steps.jpg">
   <meta property="og:image:alt" content="Baby Steps album artwork by Leon Rivera">
-  <meta property="og:url" content="https://leonbytheriver.github.io/LeonRivera/">
+  <meta property="og:url" content="https://leonrivera.mr-leon-by-the-river.workers.dev/">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Leon Rivera — Baby Steps">
-  <meta name="twitter:description" content="Explore Baby Steps, Born Again, and the music of Leon Rivera.">
-  <meta name="twitter:image" content="https://leonbytheriver.github.io/LeonRivera/assets/images/Baby-Steps.png">
-  <link rel="canonical" href="https://leonbytheriver.github.io/LeonRivera/">
+  <meta name="twitter:description" content="Listen to Baby Steps, Born Again, and the music of Leon Rivera.">
+  <meta name="twitter:image" content="https://leonrivera.mr-leon-by-the-river.workers.dev/assets/images/web/baby-steps.jpg">
+  <link rel="canonical" href="https://leonrivera.mr-leon-by-the-river.workers.dev/">
 
   <title>Leon Rivera — Baby Steps</title>
 
-  <!-- Preconnect for Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&display=swap">
 
-  <!-- Favicon / Website Logo -->
-  <link rel="icon" type="image/png" href="assets/images/Website Logo.png">
-  <link rel="apple-touch-icon" href="assets/images/Website Logo.png">
+  <link rel="icon" type="image/png" href="assets/images/web/logo-192.png">
+  <link rel="apple-touch-icon" href="assets/images/web/logo-192.png">
+  <link rel="preload" as="image" href="assets/images/web/born-again.jpg">
 
-  <!-- Stylesheet -->
   <link rel="stylesheet" href="css/style.css">
+  <script>document.documentElement.classList.add('js');</script>
 </head>
 
 <body>
   <a class="skip-link" href="#main-content">Skip to content</a>
 
-  <!-- ── Atmosphere layers ─────────────────────────────── -->
-  <canvas id="particle-canvas" aria-hidden="true"></canvas>
-  <div class="grain-overlay" aria-hidden="true"></div>
-
-  <!-- ── Custom cursor ─────────────────────────────────── -->
+  <!-- Custom cursor (desktop only) -->
   <div id="cursor-dot" aria-hidden="true"></div>
   <div id="cursor-ring" aria-hidden="true"></div>
 
-  <!-- ── YouTube embed modal ───────────────────────────── -->
-  <div class="yt-modal-backdrop" id="yt-modal" role="dialog" aria-modal="true" aria-label="Video player">
-    <div class="yt-modal-inner">
-      <button class="yt-modal-close" id="yt-close" aria-label="Close video">✕</button>
-      <iframe id="yt-iframe" title="Leon Rivera video player" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  <!-- YouTube player -->
+  <dialog class="modal yt-modal" id="yt-modal" aria-label="Video player">
+    <div class="modal-inner yt-inner">
+      <button class="modal-close" id="yt-close" type="button">Close</button>
+      <iframe id="yt-iframe" title="Leon Rivera video player" allow="autoplay; encrypted-media" allowfullscreen></iframe>
     </div>
-  </div>
+  </dialog>
 
-  <!-- Album detail modal -->
-  <dialog class="album-modal-backdrop" id="album-modal" aria-labelledby="album-modal-title">
-    <div class="album-modal-inner">
-      <button class="album-modal-close" id="album-modal-close" type="button" aria-label="Close album details">✕</button>
+  <!-- Album details -->
+  <dialog class="modal album-modal" id="album-modal" aria-labelledby="album-modal-title">
+    <div class="modal-inner album-modal-inner">
+      <button class="modal-close" id="album-modal-close" type="button">Close</button>
       <div id="album-modal-content"></div>
     </div>
   </dialog>
 
-  <!-- ════════════════════════════════════════════════════
-       NAVIGATION
-  ═════════════════════════════════════════════════════ -->
-  <nav id="main-nav" role="navigation" aria-label="Main navigation">
-    <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
-    <a href="#hero" class="nav-logo">
-      Leon <span>Rivera</span>
-    </a>
+  <!-- ── Navigation ─────────────────────────────────────── -->
+  <header class="site-bar" id="site-bar">
+    <a href="#hero" class="wordmark">Leon Rivera</a>
+    <nav class="bar-links" aria-label="Main navigation">
+      <a href="#records">Records</a>
+      <a href="#tracks">Tracks</a>
+      <a href="#about">About</a>
+      <a href="#follow">Follow</a>
+    </nav>
+    <a class="btn btn-accent bar-listen" id="bar-listen" href="#records">Listen</a>
+    <button class="bar-menu" id="bar-menu" type="button" aria-expanded="false" aria-controls="menu-drawer">Menu</button>
+  </header>
 
-    <!-- Desktop links -->
-    <ul class="nav-links" role="list">
-      <li><a href="#about">About</a></li>
-      <li><a href="#albums">Albums</a></li>
-      <li><a href="#social" class="nav-cta">Follow</a></li>
-    </ul>
-
-    <!-- Mobile hamburger -->
-    <button class="nav-hamburger" id="nav-hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="nav-mobile-drawer">
-      <span></span><span></span><span></span>
-    </button>
-  </nav>
-
-  <!-- Mobile drawer -->
-  <nav class="nav-mobile-drawer" id="nav-mobile-drawer" aria-label="Mobile menu" inert>
+  <nav class="menu-drawer" id="menu-drawer" aria-label="Mobile menu" inert>
+    <a href="#records">Records</a>
+    <a href="#tracks">Tracks</a>
     <a href="#about">About</a>
-    <a href="#albums">Albums</a>
-    <a href="#social">Follow</a>
+    <a href="#follow">Follow</a>
   </nav>
 
   <main id="main-content" tabindex="-1">
 
-  <!-- ════════════════════════════════════════════════════
-       ❶ HERO
-  ═════════════════════════════════════════════════════ -->
-  <section id="hero" aria-label="Hero">
-    <div class="hero-bg-lines" aria-hidden="true"></div>
-    <div class="hero-glow hero-glow-1" aria-hidden="true"></div>
-    <div class="hero-glow hero-glow-2" aria-hidden="true"></div>
+    <!-- ── Hero: a card held over the Born Again road ───── -->
+    <section id="hero" class="hero" aria-labelledby="hero-title">
+      <div class="hero-stage">
+        <img class="hero-photo" src="assets/images/web/born-again.jpg" width="1800" height="1350"
+          alt="A hand on wet asphalt next to a yellow road line, wearing a bead bracelet that spells LEON RIVERA">
+        <p class="hero-caption">The Born Again cover. The bracelet spells the name.</p>
 
-    <div class="hero-content" id="hero-content">
-    <p class="hero-eyebrow">Official Site</p>
+        <div class="hero-card" id="hero-card">
+          <div class="hero-head">
+            <h1 class="hero-title" id="hero-title"><span>Leon</span> <span>Rivera</span></h1>
+            <p class="hero-what" id="hero-what">Independent musician, writing twenty albums one step at a time.</p>
+          </div>
 
-    <h1 class="hero-name">
-      Leon
-      <span class="name-accent">Rivera</span>
-    </h1>
+          <div class="hero-facts">
+            <p class="facts" id="hero-facts">
+              <span id="hero-album">Baby Steps</span>
+              <span id="hero-album-meta">New album, 18 tracks</span>
+              <span id="hero-album-year">2026</span>
+            </p>
+            <p class="hero-line" id="hero-line">Hi, I'm Leon. I got a chance to live my life exactly as I wanted, and I'm doing just that. So, enjoy.</p>
+          </div>
 
-    <p class="hero-tagline">One of the most interesting people you will ever meet</p>
-
-    <!-- Album badge — populated by site-builder.js -->
-    <a href="#albums" class="hero-album-badge" id="hero-album-badge" aria-label="Featured album">
-      <div id="hero-badge-cover"></div>
-      <div class="badge-info">
-        <div class="badge-label"><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Featured Album</div>
-        <div class="badge-title" id="hero-badge-title">Baby Steps</div>
-      </div>
-    </a>
-    <div class="hero-actions" id="hero-actions"></div>
-    </div>
-
-    <!-- Scroll cue -->
-    <div class="hero-scroll-indicator" aria-hidden="true">
-      <div class="scroll-line"></div>
-      <span class="scroll-label">Scroll</span>
-    </div>
-  </section>
-
-  <!-- Scrolling tracklist ticker — populated by site-builder.js -->
-  <div class="track-marquee" id="track-marquee" aria-hidden="true"></div>
-
-  <!-- ════════════════════════════════════════════════════
-       ❷ ABOUT
-  ═════════════════════════════════════════════════════ -->
-  <section id="about" aria-label="About Leon Rivera">
-    <div class="section-inner">
-      <div class="about-grid">
-
-        <!-- Visual / portrait placeholder -->
-        <div class="about-visual reveal">
-          <div class="about-portrait-frame">
-            <div class="about-portrait-bg">
-              <div class="portrait-art">
-                <span class="portrait-initial">LR</span>
-              </div>
-            </div>
-            <div class="about-frame-accent" aria-hidden="true"></div>
+          <div class="hero-foot">
+            <span class="hero-credit" id="hero-credit">Album 2 of 20</span>
+            <a class="btn btn-ink" id="hero-listen" href="https://ditto.fm/never-forget-a-promise" target="_blank" rel="noopener noreferrer">Listen to the single <span aria-hidden="true">↗</span></a>
+            <a class="hero-link" href="#records">See the records</a>
           </div>
         </div>
+      </div>
+    </section>
 
-        <!-- Text -->
-        <div class="about-text">
-          <p class="section-label reveal">The Artist</p>
-          <h2 class="section-title reveal reveal-delay-1">
-            It's never too late<br><em>to try again</em>
-          </h2>
-          <div class="section-divider reveal reveal-delay-2" aria-hidden="true"></div>
-
-          <!-- Bio populated by site-builder.js -->
-          <div class="about-bio reveal reveal-delay-2" id="about-bio"></div>
-
-          <div class="about-stats reveal reveal-delay-3" aria-label="Stats">
-            <div class="stat-item">
-              <span class="stat-number" id="album-count">0/20</span>
-              <span class="stat-label">Albums</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-number" id="track-count">0</span>
-              <span class="stat-label">Tracks</span>
-            </div>
+    <!-- ── Records: cards cross the held road photo ───── -->
+    <section id="records" class="records" aria-labelledby="records-title">
+      <div class="records-stage">
+        <img class="records-photo" src="assets/images/web/road-line.jpg" width="1600" height="1200" alt="" loading="lazy">
+        <div class="records-window">
+        <div class="records-track" id="records-track">
+          <div class="records-intro">
+            <h2 class="section-title" id="records-title">The records</h2>
+            <p class="records-sub" id="records-sub">Two albums out, one single on every platform, and more on the way.</p>
           </div>
+          <!-- Record cards — built by site-builder.js -->
         </div>
-
-      </div>
-    </div>
-  </section>
-
-  <div class="section-transition" aria-hidden="true"></div>
-
-  <!-- ════════════════════════════════════════════════════
-       ❸ ALBUMS
-  ═════════════════════════════════════════════════════ -->
-  <section id="albums" aria-label="Discography">
-    <div class="section-inner">
-      <p class="section-label reveal">Discography</p>
-      <h2 class="section-title reveal reveal-delay-1">The <em>Works</em></h2>
-      <div class="section-divider reveal reveal-delay-2" aria-hidden="true"></div>
-
-      <!-- Album cards — populated by site-builder.js -->
-      <div class="albums-grid" id="albums-grid" role="list" aria-label="Albums"></div>
-    </div>
-  </section>
-
-  <!-- ════════════════════════════════════════════════════
-       ❽ SOCIAL
-  ═════════════════════════════════════════════════════ -->
-  <section id="social" aria-label="Follow Leon Rivera">
-    <div class="section-inner">
-      <div class="social-inner">
-        <div class="social-text">
-          <p class="section-label reveal">Connect</p>
-          <h2 class="reveal reveal-delay-1">
-            Follow the<br>
-            <em class="gradient-text">journey</em>
-          </h2>
-        </div>
-        <!-- Social links — populated by site-builder.js -->
-        <div class="social-links reveal reveal-delay-2" id="social-links" aria-label="Social media links">
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+
+    <!-- ── Tracks: every name walks past a held cover ──── -->
+    <section id="tracks" class="tracks" aria-labelledby="tracks-title">
+      <div class="tracks-hold">
+        <div class="tracks-frame" aria-hidden="true">
+          <img id="tracks-cover" src="assets/images/web/born-again.jpg" width="1800" height="1350" alt="" loading="lazy">
+        </div>
+        <p class="tracks-fact tracks-fact-left" id="tracks-fact-left">Born Again, track 1</p>
+        <p class="tracks-fact tracks-fact-right" id="tracks-fact-right">Step 1 of 31</p>
+      </div>
+      <h2 class="tracks-title" id="tracks-title">Every track so far</h2>
+      <ol class="tracks-list" id="tracks-list"></ol>
+    </section>
+
+    <!-- ── About: pinned title, portraits pass ─────────── -->
+    <section id="about" class="about" aria-labelledby="about-title">
+      <div class="about-run">
+      <div class="about-pin">
+        <h2 class="about-title" id="about-title">Meet Leon</h2>
+        <p class="about-lede" id="about-lede">Hi, I'm Leon. I got a chance to live my life exactly as I wanted, and I'm doing just that. So, enjoy.</p>
+      </div>
+      <div class="about-portraits">
+        <figure class="portrait reveal">
+          <img id="about-young" src="assets/images/web/leon-young.jpg" width="505" height="870" alt="Leon as a young boy, smiling in a white vest" loading="lazy">
+          <figcaption>
+            <strong>Leon, early on</strong>
+            <span>Where it starts</span>
+            <p>A boy who, years later, would be reborn on record and start discovering everything again.</p>
+          </figcaption>
+        </figure>
+        <figure class="portrait reveal">
+          <img id="about-photo" src="assets/images/web/leon-portrait.jpg" width="1400" height="1400" alt="Leon Rivera in white sunglasses and a navy hoodie, leaning into the camera" loading="lazy">
+          <figcaption>
+            <strong>Leon, now</strong>
+            <span>Writer and artist</span>
+            <p id="about-bio">I got a chance to live my life exactly as I wanted, and I'm doing just that.</p>
+          </figcaption>
+        </figure>
+        <figure class="portrait reveal">
+          <img src="assets/images/web/baby-steps.jpg" width="1200" height="1200" alt="The Baby Steps cover: the title scrawled in black on pale grey, above a ruler marked to 20" loading="lazy">
+          <figcaption>
+            <strong>Baby Steps</strong>
+            <span>Album two, 2026</span>
+            <p>The title drawn by hand, over a ruler that runs to twenty. One mark for every album he means to make.</p>
+          </figcaption>
+        </figure>
+      </div>
+      </div>
+
+      <div class="goal">
+        <p class="goal-line" id="goal-line">Two albums out of twenty. Thirty-one songs so far.</p>
+        <ol class="goal-ruler reveal" id="goal-ruler" aria-label="Albums released out of the planned twenty"></ol>
+      </div>
+    </section>
+
+    <!-- ── Follow: a card on the road ───────────────────── -->
+    <section id="follow" class="follow" aria-labelledby="follow-title">
+      <img class="follow-photo" src="assets/images/web/asphalt.jpg" width="1700" height="680" alt="" loading="lazy">
+      <div class="follow-card reveal">
+        <h2 id="follow-title">Find Leon</h2>
+        <div class="follow-group">
+          <h3>Listen</h3>
+          <ul id="follow-listen"></ul>
+        </div>
+        <div class="follow-group">
+          <h3>Follow</h3>
+          <ul id="follow-social"></ul>
+        </div>
+        <a class="btn btn-accent follow-btn" id="follow-email" href="mailto:mr.leon.by.the.river@gmail.com">Email Leon</a>
+      </div>
+    </section>
 
   </main>
 
-  <!-- ════════════════════════════════════════════════════
-       ❾ FOOTER
-  ═════════════════════════════════════════════════════ -->
-  <footer role="contentinfo">
-    <div class="section-inner">
-      <div class="footer-inner">
-        <div class="footer-brand">
-          <span class="nav-logo">Leon <span>Rivera</span></span>
-          <p>One of the most interesting people you will ever meet.</p>
-        </div>
-
-        <div class="footer-contact">
-          <span class="footer-contact-label">Contact</span>
-          <a href="" id="footer-email"></a>
-        </div>
-
-        <nav class="nav-links" aria-label="Footer navigation">
-          <a href="#about">About</a>
-          <a href="#albums">Albums</a>
-        </nav>
+  <!-- ── Footer: the close ────────────────────────────── -->
+  <footer class="site-foot" aria-labelledby="foot-title">
+    <div class="foot-top">
+      <div class="foot-invite">
+        <h2 id="foot-title">Take the next step with me</h2>
+        <a class="btn btn-ink" id="foot-follow" href="https://open.spotify.com/artist/3KCNJOV8owot6bcBVDiJhW" target="_blank" rel="noopener noreferrer">Follow on Spotify <span aria-hidden="true">↗</span></a>
       </div>
-
-      <div class="footer-bottom">
-        <p class="footer-copy" id="footer-copy">© <span id="footer-year"></span> Leon Rivera. All rights reserved.</p>
-        <p class="footer-copy">Vibe coded by Leon Rivera</p>
-      </div>
+      <ul class="foot-links" id="foot-links"></ul>
     </div>
+    <div class="foot-legal">
+      <p>© <span id="footer-year">2026</span> Leon Rivera</p>
+      <p>Vibe coded by Leon Rivera</p>
+    </div>
+    <p class="foot-name" aria-hidden="true">Leon Rivera</p>
   </footer>
 
-  <!-- ══════════════════════════════════════════════════
-       SCRIPTS — order matters:
-       1. Data  →  2. Builder  →  3. Main interactions
-  ═══════════════════════════════════════════════════ -->
+  <!-- Scripts — order matters: data, builder, interactions -->
   <script src="js/albums-data.js"></script>
   <script src="js/site-builder.js"></script>
   <script src="js/main.js"></script>
-  <script src="js/effects.js"></script>
-
-  <script>
-    // Set copyright year dynamically
-    document.getElementById('footer-year').textContent = new Date().getFullYear();
-  </script>
 </body>
 
 </html>
