@@ -18,6 +18,7 @@
 @property --accent-hover { syntax: '<color>'; inherits: true; initial-value: #e3ff6e; }
 @property --accent-ink { syntax: '<color>'; inherits: true; initial-value: #030407; }
 @property --photo-gray { syntax: '<number>'; inherits: true; initial-value: 1; }
+@property --glow { syntax: '<color>'; inherits: true; initial-value: #0b1a52; }
 
 :root {
   /* Default: midnight black, electric cobalt, acid lime */
@@ -30,15 +31,24 @@
   --accent: #d4ff24;        /* acid lime: buttons and highlights */
   --accent-hover: #e3ff6e;
   --accent-ink: #030407;
-  --field: #1f4fff;         /* electric cobalt: hero card, footer, menu */
-  --field-ink: #f4f6ff;     /* 5.8:1 on cobalt; lime is 5:1 */
+  /* Dark blue fields (hero card, footer, menu) with acid lime type */
+  --field: #0a1a55;
+  --field-grad: linear-gradient(155deg, #16348f 0%, #0a1a55 46%, #040b2b 100%);
+  --field-ink: #d4ff24;
+  --glow: #0b1a52;          /* the soft light at the top of the page; albums can tint it */
+
+  /* Finish: gloss is a light sheen across the top of a surface, matte is a fine grain */
+  --gloss: linear-gradient(180deg, rgb(255 255 255 / 0.16) 0%, rgb(255 255 255 / 0.05) 40%, rgb(255 255 255 / 0) 62%);
+  --gloss-strong: linear-gradient(180deg, rgb(255 255 255 / 0.42) 0%, rgb(255 255 255 / 0.08) 48%, rgb(0 0 0 / 0.1) 100%);
+  --edge-light: inset 0 1px 0 rgb(255 255 255 / 0.22);
+  --matte: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   --photo-gray: 1;          /* 1 = photos in black and white, 0 = full colour */
   --frame-filter: grayscale(1) brightness(0.45);
   --theme-time: 0.9s;
   transition: --bg var(--theme-time), --surface var(--theme-time), --stone var(--theme-time),
     --ink var(--theme-time), --muted var(--theme-time), --dim var(--theme-time),
     --accent var(--theme-time), --accent-hover var(--theme-time), --accent-ink var(--theme-time),
-    --photo-gray var(--theme-time);
+    --photo-gray var(--theme-time), --glow var(--theme-time);
 
   --font: 'Bricolage Grotesque', system-ui, sans-serif;
   --step-small: clamp(0.875rem, 0.85rem + 0.1vw, 0.9375rem);
@@ -57,7 +67,7 @@
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: var(--bar-h); }
 body {
   margin: 0;
-  background: var(--bg);
+  background: radial-gradient(120% 70% at 50% -10%, var(--glow) 0%, transparent 62%) fixed, var(--bg);
   color: var(--ink);
   font-family: var(--font);
   font-size: var(--step-body);
@@ -67,6 +77,11 @@ body {
   overflow-x: clip;
 }
 body.is-locked { overflow: hidden; }
+/* Matte: a fine grain over the whole page */
+body::after {
+  content: ''; position: fixed; inset: 0; z-index: 300; pointer-events: none;
+  background-image: var(--matte); background-size: 180px; opacity: 0.09; mix-blend-mode: overlay;
+}
 img { display: block; max-width: 100%; height: auto; }
 h1, h2, h3, p, ol, ul, figure { margin: 0; }
 h1, h2, h3 { text-wrap: balance; }
@@ -99,12 +114,23 @@ html { scrollbar-color: var(--stone) var(--bg); }
   transition: background-color 0.2s, color 0.2s, transform 0.15s var(--ease-out);
 }
 .btn:active { transform: scale(0.97); }
-.btn-accent { background: var(--accent); color: var(--accent-ink); }
-.btn-accent:hover { background: var(--accent-hover); }
-.btn-ink { background: var(--accent-ink); color: var(--accent); }
-.btn-ink:hover { background: var(--stone); color: var(--accent-hover); }
-.btn-quiet { background: var(--stone); color: var(--ink); }
-.btn-quiet:hover { background: #3a3935; }
+.btn-accent {
+  background: var(--gloss-strong), var(--accent); color: var(--accent-ink);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.65), inset 0 -2px 0 rgb(0 0 0 / 0.14), 0 8px 24px -10px var(--accent);
+}
+.btn-accent:hover { background: var(--gloss-strong), var(--accent-hover); }
+.btn-ink { background: var(--gloss), var(--accent-ink); color: var(--accent); box-shadow: var(--edge-light); }
+.btn-ink:hover { background: var(--gloss), var(--stone); color: var(--accent-hover); }
+.btn-quiet { background: var(--gloss), var(--stone); color: var(--ink); box-shadow: var(--edge-light); }
+.btn-quiet:hover { background: var(--gloss), var(--surface); }
+/* A glint runs across the glossy buttons on hover */
+.btn { position: relative; overflow: hidden; }
+.btn::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(105deg, transparent 35%, rgb(255 255 255 / 0.45) 50%, transparent 65%);
+  transform: translateX(-120%); transition: transform 0.7s var(--ease-out);
+}
+.btn:hover::after { transform: translateX(120%); }
 .btn span[aria-hidden] { transition: transform 0.2s var(--ease-out); }
 .btn:hover span[aria-hidden] { transform: translate(2px, -2px); }
 
@@ -149,7 +175,7 @@ html { scrollbar-color: var(--stone) var(--bg); }
   position: fixed; inset: var(--bar-h) 0 0; z-index: 99;
   display: flex; flex-direction: column; gap: 8px;
   padding: 32px var(--gutter);
-  background: var(--field); color: var(--field-ink);
+  background: var(--gloss), var(--field-grad); color: var(--field-ink);
   transform: translateY(-100%); visibility: hidden;
   transition: transform 0.45s var(--ease-out), visibility 0s 0.45s;
 }
@@ -181,9 +207,10 @@ html { scrollbar-color: var(--stone) var(--bg); }
   width: min(900px, 64vw); height: min(620px, 68svh);
   padding: 32px;
   display: grid; grid-template-rows: auto 1fr auto; gap: 24px;
-  background: var(--field); color: var(--field-ink);
+  background: var(--gloss), var(--field-grad); color: var(--field-ink);
   transform-origin: 0 100%;
   will-change: transform;
+  box-shadow: var(--edge-light), 0 40px 90px -30px rgb(0 0 0 / 0.8);
 }
 .hero-head { display: grid; gap: 20px; align-content: start; }
 .hero-what { max-width: 26ch; font-size: var(--step-lead); font-weight: 500; line-height: 1.15; letter-spacing: -0.02em; }
@@ -194,6 +221,7 @@ html { scrollbar-color: var(--stone) var(--bg); }
 }
 .hero-facts { display: flex; justify-content: space-between; align-items: end; gap: 32px; }
 .facts { display: grid; font-size: var(--step-lead); font-weight: 600; line-height: 1.05; letter-spacing: -0.02em; }
+.facts span { white-space: nowrap; }
 .facts span:first-child { font-weight: 700; }
 .hero-line { max-width: 30ch; font-size: var(--step-body); line-height: 1.4; }
 .hero-foot { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; }
@@ -264,7 +292,8 @@ html { scrollbar-color: var(--stone) var(--bg); }
 .record-name { margin: 0; font-size: var(--step-lead); font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
 .record-text { max-width: 28ch; font-size: var(--step-small); line-height: 1.4; text-align: right; }
 /* Each card wears its own album's colours, whatever the page is showing */
-.record-panel { background: var(--card-bg, var(--stone)); color: var(--card-ink, var(--ink)); transition: background-color 0.4s; }
+.record-panel { background: var(--gloss), var(--card-bg, var(--stone)); color: var(--card-ink, var(--ink)); box-shadow: var(--edge-light); }
+.record { box-shadow: 0 30px 70px -30px rgb(0 0 0 / 0.75); }
 
 /* ── Tracks: names walk past a held frame ───────────────── */
 .tracks {
@@ -313,9 +342,9 @@ html { scrollbar-color: var(--stone) var(--bg); }
 .goal { display: grid; gap: 24px; margin-top: 24px; }
 .goal-line { font-size: var(--step-body); font-weight: 600; color: var(--muted); }
 .goal-ruler { display: grid; grid-template-columns: repeat(20, 1fr); gap: 6px; align-items: end; }
-.goal-ruler li { height: 96px; background: var(--stone); transform-origin: bottom; }
+.goal-ruler li { height: 96px; background: linear-gradient(180deg, var(--stone), var(--surface)); box-shadow: var(--edge-light); transform-origin: bottom; }
 .goal-ruler li:nth-child(5n) { height: 128px; }
-.goal-ruler li.is-out { height: 180px; background: var(--accent); color: var(--accent-ink); position: relative; }
+.goal-ruler li.is-out { height: 180px; background: var(--gloss-strong), var(--accent); color: var(--accent-ink); position: relative; }
 .goal-ruler li.is-out span {
   position: absolute; left: 50%; bottom: 10px;
   writing-mode: vertical-rl; transform: translateX(-50%) rotate(180deg);
@@ -333,7 +362,8 @@ html { scrollbar-color: var(--stone) var(--bg); }
   position: absolute; top: 96px; right: var(--gutter);
   width: 400px; padding: 32px 32px 0;
   display: grid; gap: 24px;
-  background: var(--ink); color: var(--accent-ink);
+  background: var(--gloss), var(--ink); color: var(--accent-ink);
+  box-shadow: var(--edge-light), 0 40px 90px -30px rgb(0 0 0 / 0.8);
 }
 .follow-card h2 { font-size: var(--step-lead); font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
 .follow-group h3 { font-size: var(--step-small); font-weight: 600; color: var(--stone); margin-bottom: 6px; }
@@ -351,7 +381,7 @@ html { scrollbar-color: var(--stone) var(--bg); }
   position: relative; overflow: hidden;
   min-height: 100svh; padding: 112px var(--gutter) 0;
   display: grid; grid-template-rows: auto 1fr auto auto; grid-template-columns: minmax(0, 1fr);
-  background: var(--field); color: var(--field-ink);
+  background: var(--field-grad); color: var(--field-ink);
 }
 .foot-top { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px; align-items: start; }
 .foot-invite { grid-column: 1 / 8; display: grid; gap: 32px; justify-items: start; }
@@ -376,8 +406,8 @@ html { scrollbar-color: var(--stone) var(--bg); }
 .modal-inner {
   position: relative; width: min(1040px, calc(100% - 32px)); max-height: calc(100svh - 32px);
   overflow: auto; overscroll-behavior: contain;
-  background: var(--surface); padding: 32px;
-  box-shadow: 0 24px 64px rgb(0 0 0 / 0.5); /* taste-skill-ignore: dialog floats */
+  background: var(--gloss), linear-gradient(180deg, var(--surface), var(--bg)); padding: 32px;
+  box-shadow: var(--edge-light), 0 24px 64px rgb(0 0 0 / 0.5); /* taste-skill-ignore: dialog floats */
   animation: modal-in 0.45s var(--ease-out);
 }
 @keyframes modal-in { from { opacity: 0; transform: translateY(24px); } }

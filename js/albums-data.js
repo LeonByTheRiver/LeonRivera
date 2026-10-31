@@ -17,7 +17,8 @@
 
  *  theme       → optional page colours while a visitor is on this album
  *                (bg, surface, stone, ink, muted, dim, accent, accentHover,
- *                accentInk; plus frameFilter and photoGray for photos).
+ *                accentInk; glow for the light at the top of the page;
+ *                plus frameFilter and photoGray for photos).
  *                Leave it out and the album uses the site's blue colours.
  *  featured    → true = show this album in the hero spotlight
  *  smartLink   → optional all-platform listening URL (e.g. Ditto)
@@ -42,7 +43,7 @@ const ALBUMS = [
       bg: "#dededb", surface: "#d0d0cc", stone: "#c3c3be",
       ink: "#141414", muted: "#45453f", dim: "#66665f",
       accent: "#141414", accentHover: "#3a3a36", accentInk: "#ededea",
-      frameFilter: "none", photoGray: 1,
+      frameFilter: "none", photoGray: 1, glow: "#f6f6f3",
     },
     featuredTrack: 9,
     tracks: [
@@ -88,7 +89,7 @@ const ALBUMS = [
       bg: "#0d0d0c", surface: "#1b1b19", stone: "#2c2b28",
       ink: "#efefec", muted: "#b3afa6", dim: "#8a867e",
       accent: "#e8c61e", accentHover: "#f5d63a", accentInk: "#0d0d0c",
-      frameFilter: "grayscale(0.2) contrast(1.5) brightness(0.42)", photoGray: 0,
+      frameFilter: "grayscale(0.2) contrast(1.5) brightness(0.42)", photoGray: 0, glow: "#2b2608",
     },
 
     tracks: [
