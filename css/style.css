@@ -1,6 +1,6 @@
 /* ============================================================
    LEON RIVERA — STYLES
-   Cinematic night blue by default. While a visitor is on an album
+   Midnight black, electric cobalt and acid lime by default. While a visitor is on an album
    (in Records or Tracks) the page takes that album's colours, set
    per album in albums-data.js and applied by main.js.
    One typeface (Bricolage Grotesque), five sizes, square corners.
@@ -8,28 +8,30 @@
 
 /* ── Tokens ─────────────────────────────────────────────── */
 /* Registered so the colours can glide from one album to the next */
-@property --bg { syntax: '<color>'; inherits: true; initial-value: #060a14; }
-@property --surface { syntax: '<color>'; inherits: true; initial-value: #0d1526; }
-@property --stone { syntax: '<color>'; inherits: true; initial-value: #18233a; }
-@property --ink { syntax: '<color>'; inherits: true; initial-value: #e6edf5; }
-@property --muted { syntax: '<color>'; inherits: true; initial-value: #9fb0c4; }
-@property --dim { syntax: '<color>'; inherits: true; initial-value: #6f86a3; }
-@property --accent { syntax: '<color>'; inherits: true; initial-value: #3fc8f2; }
-@property --accent-hover { syntax: '<color>'; inherits: true; initial-value: #74d9f7; }
-@property --accent-ink { syntax: '<color>'; inherits: true; initial-value: #04121c; }
+@property --bg { syntax: '<color>'; inherits: true; initial-value: #030407; }
+@property --surface { syntax: '<color>'; inherits: true; initial-value: #0a0d1a; }
+@property --stone { syntax: '<color>'; inherits: true; initial-value: #161c38; }
+@property --ink { syntax: '<color>'; inherits: true; initial-value: #eef1fa; }
+@property --muted { syntax: '<color>'; inherits: true; initial-value: #a7aecb; }
+@property --dim { syntax: '<color>'; inherits: true; initial-value: #6e78a3; }
+@property --accent { syntax: '<color>'; inherits: true; initial-value: #d4ff24; }
+@property --accent-hover { syntax: '<color>'; inherits: true; initial-value: #e3ff6e; }
+@property --accent-ink { syntax: '<color>'; inherits: true; initial-value: #030407; }
 @property --photo-gray { syntax: '<number>'; inherits: true; initial-value: 1; }
 
 :root {
-  /* Default: cinematic night blue */
-  --bg: #060a14;
-  --surface: #0d1526;
-  --stone: #18233a;
-  --ink: #e6edf5;
-  --muted: #9fb0c4;
-  --dim: #6f86a3;           /* track names at rest, 5:1 on --bg */
-  --accent: #3fc8f2;        /* the old site's cyan, softened */
-  --accent-hover: #74d9f7;
-  --accent-ink: #04121c;
+  /* Default: midnight black, electric cobalt, acid lime */
+  --bg: #030407;
+  --surface: #0a0d1a;
+  --stone: #161c38;
+  --ink: #eef1fa;
+  --muted: #a7aecb;
+  --dim: #6e78a3;           /* track names at rest, 5:1 on --bg */
+  --accent: #d4ff24;        /* acid lime: buttons and highlights */
+  --accent-hover: #e3ff6e;
+  --accent-ink: #030407;
+  --field: #1f4fff;         /* electric cobalt: hero card, footer, menu */
+  --field-ink: #f4f6ff;     /* 5.8:1 on cobalt; lime is 5:1 */
   --photo-gray: 1;          /* 1 = photos in black and white, 0 = full colour */
   --frame-filter: grayscale(1) brightness(0.45);
   --theme-time: 0.9s;
@@ -147,7 +149,7 @@ html { scrollbar-color: var(--stone) var(--bg); }
   position: fixed; inset: var(--bar-h) 0 0; z-index: 99;
   display: flex; flex-direction: column; gap: 8px;
   padding: 32px var(--gutter);
-  background: var(--accent); color: var(--accent-ink);
+  background: var(--field); color: var(--field-ink);
   transform: translateY(-100%); visibility: hidden;
   transition: transform 0.45s var(--ease-out), visibility 0s 0.45s;
 }
@@ -179,7 +181,7 @@ html { scrollbar-color: var(--stone) var(--bg); }
   width: min(900px, 64vw); height: min(620px, 68svh);
   padding: 32px;
   display: grid; grid-template-rows: auto 1fr auto; gap: 24px;
-  background: var(--accent); color: var(--accent-ink);
+  background: var(--field); color: var(--field-ink);
   transform-origin: 0 100%;
   will-change: transform;
 }
@@ -349,7 +351,7 @@ html { scrollbar-color: var(--stone) var(--bg); }
   position: relative; overflow: hidden;
   min-height: 100svh; padding: 112px var(--gutter) 0;
   display: grid; grid-template-rows: auto 1fr auto auto; grid-template-columns: minmax(0, 1fr);
-  background: var(--accent); color: var(--accent-ink);
+  background: var(--field); color: var(--field-ink);
 }
 .foot-top { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px; align-items: start; }
 .foot-invite { grid-column: 1 / 8; display: grid; gap: 32px; justify-items: start; }
