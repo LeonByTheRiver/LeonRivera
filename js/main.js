@@ -251,7 +251,7 @@ function initThemes() {
   const vars = {
     bg: '--bg', surface: '--surface', stone: '--stone', ink: '--ink', muted: '--muted', dim: '--dim',
     accent: '--accent', accentHover: '--accent-hover', accentInk: '--accent-ink',
-    frameFilter: '--frame-filter', photoGray: '--photo-gray', glow: '--glow',
+    frameFilter: '--frame-filter', photoGray: '--photo-gray',
   };
   const defaultBg = getComputedStyle(root).getPropertyValue('--bg').trim();
 
