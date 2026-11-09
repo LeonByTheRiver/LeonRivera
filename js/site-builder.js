@@ -12,13 +12,6 @@ const esc = (s) => String(s)
   .replace(/&/g,'&amp;').replace(/</g,'&lt;')
   .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
-const NUMBER_WORDS = ['Zero','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten',
-  'Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen','Twenty'];
-const TENS = ['', '', 'Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
-const inWords = n => n <= 20 ? NUMBER_WORDS[n]
-  : n < 100 ? TENS[Math.floor(n / 10)] + (n % 10 ? '-' + NUMBER_WORDS[n % 10].toLowerCase() : '')
-  : String(n);
-
 const platformName = platform => ({
   spotify: 'Spotify', apple: 'Apple Music', deezer: 'Deezer', youtube: 'YouTube', tidal: 'Tidal',
   instagram: 'Instagram', facebook: 'Facebook', twitter: 'X', tiktok: 'TikTok',
@@ -50,8 +43,6 @@ function buildHero() {
   document.getElementById('hero-album-meta').textContent = `New album, ${album.tracks?.length || 0} tracks`;
   document.getElementById('hero-album-year').textContent = album.year || '';
   document.getElementById('hero-line').textContent = ARTIST.tagline || ARTIST.bio?.[0] || '';
-  document.getElementById('hero-what').textContent =
-    `Independent musician, writing ${inWords(albumGoal()).toLowerCase()} albums one step at a time.`;
   document.getElementById('hero-credit').textContent = `Album ${albumNumber(album)} of ${albumGoal()}`;
 
   const listen = document.getElementById('hero-listen');
@@ -74,17 +65,15 @@ function buildRecords() {
   const cards = [];
 
   ALBUMS.forEach(album => {
-    const desc = album.description || '';
     cards.push({
       title: album.title,
-      text: [album.year && `${album.year}.`, /\btracks?\b/i.test(desc) ? '' : `${album.tracks?.length || 0} tracks.`, desc]
-        .filter(Boolean).join(' '),
+      text: [album.year, `${album.tracks?.length || 0} tracks`].filter(Boolean).join(' · '),
       cover: album.cover, alt: `${album.title} cover`, albumId: album.id, themeOf: album, solid: true,
     });
     const single = featuredTrackOf(album);
     if (single && hasLinks(single)) cards.push({
       title: single.title,
-      text: `The single from ${album.title}, track ${single.number}. Out now on every platform.`,
+      text: `Single · ${album.title}`,
       cover: album.cover, alt: `${album.title} cover`, url: linkOf(single), crop: true, themeOf: album,
     });
   });
@@ -92,7 +81,7 @@ function buildRecords() {
   const next = ALBUMS.length + 1;
   if (next <= albumGoal()) cards.push({
     title: `Album ${next} of ${albumGoal()}`,
-    text: 'Being written now. Follow along to hear it first.',
+    text: 'In progress',
     cover: ARTIST.photo, alt: 'Leon Rivera in white sunglasses', href: '#follow',
   });
 
@@ -118,9 +107,6 @@ function buildRecords() {
         <p class="record-text">${esc(card.text)}</p>
       </div>
     </article>`).join(''));
-
-  document.getElementById('records-sub').textContent =
-    `${inWords(ALBUMS.length)} albums out of ${albumGoal()}. Open one for its full tracklist.`;
 
   track.querySelectorAll('button[data-album-id]').forEach(button =>
     button.addEventListener('click', () => openAlbumModal(button.dataset.albumId, button)));
@@ -158,8 +144,7 @@ function buildAbout() {
   if (photo && ARTIST.photo) photo.src = ARTIST.photo;
 
   const n = ALBUMS.length, goal = albumGoal(), tracks = totalTracks();
-  document.getElementById('goal-line').textContent =
-    `${inWords(n)} ${n === 1 ? 'album' : 'albums'} out of ${goal}. ${inWords(tracks)} songs so far.`;
+  document.getElementById('goal-line').textContent = `${n} of ${goal} albums · ${tracks} songs`;
 
   const ruler = document.getElementById('goal-ruler');
   const released = [...ALBUMS].reverse();
@@ -221,7 +206,6 @@ function openAlbumModal(albumId, trigger = null) {
       <div class="album-modal-copy">
         <h2 id="album-modal-title">${esc(album.title)}</h2>
         <p class="album-modal-meta">Album ${albumNumber(album)} of ${albumGoal()}${album.year ? `, ${esc(album.year)}` : ''}. ${album.tracks?.length || 0} tracks.</p>
-        <p>${esc(album.description || '')}</p>
         <div class="album-modal-actions">
           ${release ? outLink(linkOf(release), release === album ? 'Listen' : `Listen to ${esc(release.title)}`, ' class="btn btn-accent"') : ''}
           ${video ? `<button class="btn btn-quiet" type="button" data-video="${esc(video.id)}">Watch the visual</button>` : ''}
